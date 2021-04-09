@@ -27,25 +27,30 @@ find_package(DBoW2 REQUIRED)
 add_library(
   ${PROJECT_NAME}
   SHARED
-  src/System.cc
-  src/Tracking.cc
-  src/LocalMapping.cc
-  src/LoopClosing.cc
-  src/ORBextractor.cc
-  src/ORBmatcher.cc
-  src/FrameDrawer.cpp
-  src/Converter.cpp
-  src/MapPoint.cc
-  src/KeyFrame.cc
+)
+
+target_sources(
+  ${PROJECT_NAME}
+  PRIVATE
   src/Map.cc
+  src/Frame.cc
+  src/System.cc
+  src/Viewer.cc
+  src/KeyFrame.cc
+  src/MapPoint.cc
+  src/Tracking.cc
   src/MapDrawer.cc
   src/Optimizer.cc
   src/PnPsolver.cc
-  src/Frame.cc
-  src/KeyFrameDatabase.cc
+  src/Converter.cpp
+  src/ORBmatcher.cc
   src/Sim3Solver.cc
   src/Initializer.cc
-  src/Viewer.cc
+  src/LoopClosing.cc
+  src/FrameDrawer.cpp
+  src/LocalMapping.cc
+  src/ORBextractor.cc
+  src/KeyFrameDatabase.cc
 )
 
 target_include_directories(
