@@ -22,7 +22,7 @@
 #ifndef VIEWER_H
 #define VIEWER_H
 
-#include "FrameDrawer.h"
+#include "FrameDrawer.hpp"
 #include "MapDrawer.h"
 #include "Tracking.h"
 #include "System.h"
