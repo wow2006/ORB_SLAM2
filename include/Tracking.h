@@ -28,7 +28,7 @@
 #include"Viewer.h"
 #include"FrameDrawer.hpp"
 #include"Map.h"
-#include"LocalMapping.h"
+#include"LocalMapping.hpp"
 #include"LoopClosing.h"
 #include"Frame.hpp"
 #include "ORBVocabulary.h"

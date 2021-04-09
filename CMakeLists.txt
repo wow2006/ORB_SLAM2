@@ -48,7 +48,7 @@ target_sources(
   src/Initializer.cpp
   src/LoopClosing.cc
   src/FrameDrawer.cpp
-  src/LocalMapping.cc
+  src/LocalMapping.cpp
   src/ORBextractor.cc
   src/KeyFrameDatabase.cpp
 )

@@ -22,7 +22,7 @@
 #define LOOPCLOSING_H
 
 #include "KeyFrame.hpp"
-#include "LocalMapping.h"
+#include "LocalMapping.hpp"
 #include "Map.h"
 #include "ORBVocabulary.h"
 #include "Tracking.h"
