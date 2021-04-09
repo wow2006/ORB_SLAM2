@@ -34,7 +34,7 @@
 #include "ORBVocabulary.h"
 #include"KeyFrameDatabase.h"
 #include"ORBextractor.h"
-#include "Initializer.h"
+#include "Initializer.hpp"
 #include "MapDrawer.h"
 #include "System.h"
 

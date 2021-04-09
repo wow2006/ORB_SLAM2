@@ -28,7 +28,7 @@
 #include"FrameDrawer.hpp"
 #include"Converter.hpp"
 #include"Map.h"
-#include"Initializer.h"
+#include"Initializer.hpp"
 
 #include"Optimizer.h"
 #include"PnPsolver.h"

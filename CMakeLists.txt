@@ -45,7 +45,7 @@ target_sources(
   src/Converter.cpp
   src/ORBmatcher.cc
   src/Sim3Solver.cc
-  src/Initializer.cc
+  src/Initializer.cpp
   src/LoopClosing.cc
   src/FrameDrawer.cpp
   src/LocalMapping.cc
