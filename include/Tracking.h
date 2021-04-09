@@ -32,7 +32,7 @@
 #include"LoopClosing.h"
 #include"Frame.hpp"
 #include "ORBVocabulary.h"
-#include"KeyFrameDatabase.h"
+#include"KeyFrameDatabase.hpp"
 #include"ORBextractor.h"
 #include "Initializer.hpp"
 #include "MapDrawer.h"

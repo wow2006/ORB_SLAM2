@@ -50,7 +50,7 @@ target_sources(
   src/FrameDrawer.cpp
   src/LocalMapping.cc
   src/ORBextractor.cc
-  src/KeyFrameDatabase.cc
+  src/KeyFrameDatabase.cpp
 )
 
 target_include_directories(

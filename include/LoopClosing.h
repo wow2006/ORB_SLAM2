@@ -27,7 +27,7 @@
 #include "ORBVocabulary.h"
 #include "Tracking.h"
 
-#include "KeyFrameDatabase.h"
+#include "KeyFrameDatabase.hpp"
 
 #include <thread>
 #include <mutex>

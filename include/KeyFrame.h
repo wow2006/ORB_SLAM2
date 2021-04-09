@@ -27,7 +27,7 @@
 #include "ORBVocabulary.h"
 #include "ORBextractor.h"
 #include "Frame.hpp"
-#include "KeyFrameDatabase.h"
+#include "KeyFrameDatabase.hpp"
 
 #include <mutex>
 
