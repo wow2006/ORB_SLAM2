@@ -22,7 +22,7 @@
 
 #include "Sim3Solver.h"
 
-#include "Converter.h"
+#include "Converter.hpp"
 
 #include "Optimizer.h"
 
