@@ -18,7 +18,7 @@
 * along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "KeyFrame.h"
+#include "KeyFrame.hpp"
 #include "Converter.hpp"
 #include "ORBmatcher.h"
 #include<mutex>

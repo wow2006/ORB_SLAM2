@@ -22,7 +22,7 @@
 #define MAP_H
 
 #include "MapPoint.h"
-#include "KeyFrame.h"
+#include "KeyFrame.hpp"
 #include <set>
 
 #include <mutex>

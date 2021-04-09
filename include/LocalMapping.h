@@ -21,7 +21,7 @@
 #ifndef LOCALMAPPING_H
 #define LOCALMAPPING_H
 
-#include "KeyFrame.h"
+#include "KeyFrame.hpp"
 #include "Map.h"
 #include "LoopClosing.h"
 #include "Tracking.h"

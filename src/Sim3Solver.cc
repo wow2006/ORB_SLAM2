@@ -25,7 +25,7 @@
 #include <cmath>
 #include <opencv2/core/core.hpp>
 
-#include "KeyFrame.h"
+#include "KeyFrame.hpp"
 #include "ORBmatcher.h"
 
 #include "Thirdparty/DBoW2/DUtils/Random.h"

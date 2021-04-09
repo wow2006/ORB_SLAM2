@@ -19,7 +19,7 @@
  */
 // Internal
 #include "Frame.hpp"
-#include "KeyFrame.h"
+#include "KeyFrame.hpp"
 #include "KeyFrameDatabase.hpp"
 #include "Thirdparty/DBoW2/DBoW2/BowVector.h"
 

@@ -21,7 +21,7 @@
 #ifndef LOOPCLOSING_H
 #define LOOPCLOSING_H
 
-#include "KeyFrame.h"
+#include "KeyFrame.hpp"
 #include "LocalMapping.h"
 #include "Map.h"
 #include "ORBVocabulary.h"
