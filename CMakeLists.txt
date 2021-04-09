@@ -39,7 +39,7 @@ target_sources(
   src/KeyFrame.cpp
   src/MapPoint.cc
   src/Tracking.cc
-  src/MapDrawer.cc
+  src/MapDrawer.cpp
   src/Optimizer.cc
   src/PnPsolver.cc
   src/Converter.cpp

@@ -18,7 +18,7 @@
 * along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "MapDrawer.h"
+#include "MapDrawer.hpp"
 #include "MapPoint.h"
 #include "KeyFrame.hpp"
 #include <pangolin/pangolin.h>
