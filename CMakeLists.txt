@@ -88,6 +88,13 @@ target_compile_options(
   PUBLIC
   -march=native
 )
+
+
+target_precompile_headers(
+  ${PROJECT_NAME}
+  PUBLIC
+  include/precompiled.hpp
+)
 # ==========================
 
 # ==========================
@@ -118,7 +125,6 @@ if(ENABLE_EXAMPLE)
       target_link_libraries(stereo_euroc ${PROJECT_NAME})
     endif()
   endif()
-
 
   if(ENABLE_MONO)
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Examples/Monocular)
