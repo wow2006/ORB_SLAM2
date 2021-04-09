@@ -22,7 +22,7 @@
 #define MAPPOINT_H
 
 #include"KeyFrame.h"
-#include"Frame.h"
+#include"Frame.hpp"
 #include"Map.h"
 
 #include<opencv2/core/core.hpp>

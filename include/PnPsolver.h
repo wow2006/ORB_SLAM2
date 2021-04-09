@@ -53,7 +53,7 @@
 
 #include <opencv2/core/core.hpp>
 #include "MapPoint.h"
-#include "Frame.h"
+#include "Frame.hpp"
 
 namespace ORB_SLAM2
 {

@@ -26,7 +26,7 @@
 #include "Thirdparty/DBoW2/DBoW2/FeatureVector.h"
 #include "ORBVocabulary.h"
 #include "ORBextractor.h"
-#include "Frame.h"
+#include "Frame.hpp"
 #include "KeyFrameDatabase.h"
 
 #include <mutex>

@@ -33,7 +33,7 @@ target_sources(
   ${PROJECT_NAME}
   PRIVATE
   src/Map.cc
-  src/Frame.cc
+  src/Frame.cpp
   src/System.cc
   src/Viewer.cc
   src/KeyFrame.cc
