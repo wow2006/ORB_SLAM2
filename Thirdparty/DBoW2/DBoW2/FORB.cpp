@@ -162,6 +162,13 @@ void FORB::toArray8U(const TDescriptor &descriptors, unsigned char *array) {
 
 // --------------------------------------------------------------------------
 
+void FORB::fromArray8U(TDescriptor &descriptors, unsigned char *array) {
+  unsigned char *d = descriptors.ptr<unsigned char>();
+  std::copy(array, array + FORB::L, d);
+}
+
+// --------------------------------------------------------------------------
+
 void FORB::toMat8U(const std::vector<TDescriptor> &descriptors, cv::Mat &mat) {
   mat.create(descriptors.size(), 32, CV_8U);
 

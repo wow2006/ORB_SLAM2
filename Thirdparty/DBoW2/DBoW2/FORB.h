@@ -71,6 +71,13 @@ public:
    */
   static void toMat32F(const std::vector<TDescriptor> &descriptors, cv::Mat &mat);
 
+  /**
+   * Fills an descriptor with the values from an array
+   * @param descriptors (out) descriptor
+   * @param array (in) unsigned char * containing the values of the descriptor
+   */
+  static void fromArray8U(TDescriptor &descriptors, unsigned char * array);
+
   static void toMat8U(const std::vector<TDescriptor> &descriptors, cv::Mat &mat);
 };
 
