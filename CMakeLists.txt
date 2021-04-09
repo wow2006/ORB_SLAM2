@@ -2,25 +2,28 @@
 cmake_minimum_required(VERSION 3.16)
 project(ORB_SLAM2 CXX)
 
-set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -Wall -O3 -march=native")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O3 -march=native")
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
-LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+# ==========================
+option(ENABLE_EXAMPLE "Build examples"       OFF)
+option(ENABLE_TUM     "Build TUM example"    OFF)
+option(ENABLE_KITTI   "Build KITTI example"  OFF)
+option(ENABLE_EuRoC   "Build EuRoC example"  OFF)
+option(ENABLE_MONO    "Build MONO example"   OFF)
+option(ENABLE_STEREO  "Build Stereo example" OFF)
+option(ENABLE_RGBD    "Build RGB-D example"  OFF)
+# ==========================
 
+find_package(OpenCV 3 REQUIRED imgproc features2d imgcodecs calib3d highgui)
+find_package(Eigen3 REQUIRED)
+find_package(Pangolin REQUIRED)
+# Thirdparty
 find_package(g2o   REQUIRED)
 find_package(DBoW2 REQUIRED)
 
-find_package(OpenCV 3.0 QUIET)
-if(NOT OpenCV_FOUND)
-   find_package(OpenCV 2.4.3 QUIET)
-   if(NOT OpenCV_FOUND)
-      message(FATAL_ERROR "OpenCV > 2.4.3 not found.")
-   endif()
-endif()
-
-find_package(Eigen3 3.1.0 REQUIRED)
-find_package(Pangolin REQUIRED)
-
+# ==========================
+# SLAM Library
+# ==========================
 add_library(
   ${PROJECT_NAME}
   SHARED
@@ -48,7 +51,6 @@ add_library(
 target_include_directories(
   ${PROJECT_NAME}
   SYSTEM PUBLIC
-  ${EIGEN3_INCLUDE_DIR}
   ${Pangolin_INCLUDE_DIRS}
 )
 
@@ -63,8 +65,8 @@ target_link_libraries(
   ${PROJECT_NAME}
   PUBLIC
   ${OpenCV_LIBS}
-  ${EIGEN3_LIBS}
   ${Pangolin_LIBRARIES}
+  Eigen3::Eigen
   ORB_SLAM2::g2o
   ORB_SLAM2::DBoW2
 )
@@ -81,36 +83,83 @@ target_compile_features(
   cxx_std_11
 )
 
+target_compile_options(
+  ${PROJECT_NAME}
+  PUBLIC
+  -march=native
+)
+# ==========================
+
+# ==========================
 # Build examples
+if(ENABLE_EXAMPLE)
+  if(ENABLE_RGBD)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Examples/RGB-D)
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Examples/RGB-D)
+    if(ENABLE_TUM)
+      add_executable(rgbd_tum
+      Examples/RGB-D/rgbd_tum.cc)
+      target_link_libraries(rgbd_tum ${PROJECT_NAME})
+    endif()
+  endif()
 
-add_executable(rgbd_tum
-Examples/RGB-D/rgbd_tum.cc)
-target_link_libraries(rgbd_tum ${PROJECT_NAME})
+  if(ENABLE_STEREO)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Examples/Stereo)
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Examples/Stereo)
+    if(ENABLE_KITTI)
+      add_executable(stereo_kitti
+      Examples/Stereo/stereo_kitti.cc)
+      target_link_libraries(stereo_kitti ${PROJECT_NAME})
+    endif()
 
-add_executable(stereo_kitti
-Examples/Stereo/stereo_kitti.cc)
-target_link_libraries(stereo_kitti ${PROJECT_NAME})
+    if(ENABLE_EuRoC)
+      add_executable(stereo_euroc
+      Examples/Stereo/stereo_euroc.cc)
+      target_link_libraries(stereo_euroc ${PROJECT_NAME})
+    endif()
+  endif()
 
-add_executable(stereo_euroc
-Examples/Stereo/stereo_euroc.cc)
-target_link_libraries(stereo_euroc ${PROJECT_NAME})
 
+  if(ENABLE_MONO)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Examples/Monocular)
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Examples/Monocular)
+    if(ENABLE_TUM)
+      add_executable(
+        mono_tum
+        Examples/Monocular/mono_tum.cc
+      )
 
-add_executable(mono_tum
-Examples/Monocular/mono_tum.cc)
-target_link_libraries(mono_tum ${PROJECT_NAME})
+      target_link_libraries(
+        mono_tum
+        ${PROJECT_NAME}
+      )
+    endif()
 
-add_executable(mono_kitti
-Examples/Monocular/mono_kitti.cc)
-target_link_libraries(mono_kitti ${PROJECT_NAME})
+    if(ENABLE_KITTI)
+      add_executable(
+        mono_kitti
+        Examples/Monocular/mono_kitti.cc
+      )
 
-add_executable(mono_euroc
-Examples/Monocular/mono_euroc.cc)
-target_link_libraries(mono_euroc ${PROJECT_NAME})
+      target_link_libraries(
+        mono_kitti
+        ${PROJECT_NAME}
+      )
+    endif()
+
+    if(ENABLE_EuRoC)
+      add_executable(
+        mono_euroc
+        Examples/Monocular/mono_euroc.cc
+      )
+
+      target_link_libraries(
+        mono_euroc
+        PRIVATE
+        ${PROJECT_NAME}
+      )
+    endif()
+  endif()
+endif()
+# ==========================
 
