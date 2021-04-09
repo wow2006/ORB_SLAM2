@@ -1,0 +1,2 @@
+- debug binary vocab loading.
+
