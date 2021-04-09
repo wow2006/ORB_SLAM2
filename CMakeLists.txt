@@ -1,5 +1,6 @@
-cmake_minimum_required(VERSION 2.8)
-project(ORB_SLAM2)
+# ${CMAKE_SOURCE_DIR}/CMakeLists.txt
+cmake_minimum_required(VERSION 3.16)
+project(ORB_SLAM2 CXX)
 
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE Release)
