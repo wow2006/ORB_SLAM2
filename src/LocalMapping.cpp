@@ -19,7 +19,7 @@
 */
 
 #include "LocalMapping.hpp"
-#include "LoopClosing.h"
+#include "LoopClosing.hpp"
 #include "ORBmatcher.h"
 #include "Optimizer.h"
 

@@ -29,7 +29,7 @@
 #include"FrameDrawer.hpp"
 #include"Map.h"
 #include"LocalMapping.hpp"
-#include"LoopClosing.h"
+#include"LoopClosing.hpp"
 #include"Frame.hpp"
 #include "ORBVocabulary.h"
 #include"KeyFrameDatabase.hpp"

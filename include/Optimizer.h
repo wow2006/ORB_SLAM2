@@ -24,7 +24,7 @@
 #include "Map.h"
 #include "MapPoint.h"
 #include "KeyFrame.hpp"
-#include "LoopClosing.h"
+#include "LoopClosing.hpp"
 #include "Frame.hpp"
 
 #include "Thirdparty/g2o/g2o/types/types_seven_dof_expmap.h"
