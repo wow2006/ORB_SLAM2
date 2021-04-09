@@ -26,8 +26,12 @@
 #include <pangolin/pangolin.h>
 #include <iomanip>
 
-namespace ORB_SLAM2
-{
+void usleep(uint32_t useconds) {
+  std::this_thread::sleep_for(std::chrono::microseconds(useconds));
+}
+
+
+namespace ORB_SLAM2 {
 
 System::System(const string &strVocFile, const string &strSettingsFile, const eSensor sensor,
                const bool bUseViewer):mSensor(sensor), mpViewer(static_cast<Viewer*>(NULL)), mbReset(false),mbActivateLocalizationMode(false),

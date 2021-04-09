@@ -36,8 +36,10 @@
 #include "ORBVocabulary.h"
 #include "Viewer.h"
 
-namespace ORB_SLAM2
-{
+extern void usleep(uint32_t useconds);
+
+
+namespace ORB_SLAM2 {
 
 class Viewer;
 class FrameDrawer;
