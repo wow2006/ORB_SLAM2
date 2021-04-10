@@ -44,7 +44,7 @@ target_sources(
   src/PnPsolver.cpp
   src/Converter.cpp
   src/ORBmatcher.cpp
-  src/Sim3Solver.cc
+  src/Sim3Solver.cpp
   src/Initializer.cpp
   src/LoopClosing.cpp
   src/FrameDrawer.cpp

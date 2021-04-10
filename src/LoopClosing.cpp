@@ -21,7 +21,7 @@
 #include "Map.hpp"
 #include "Tracking.h"
 #include "Optimizer.hpp"
-#include "Sim3Solver.h"
+#include "Sim3Solver.hpp"
 #include "ORBmatcher.hpp"
 #include "KeyFrame.hpp"
 #include "Converter.hpp"
