@@ -36,14 +36,15 @@
 #include <g2o/core/optimization_algorithm_levenberg.h>
 
 namespace ORB_SLAM2 {
+namespace Optimizer {
 
-void Optimizer::GlobalBundleAdjustemnt(Map *pMap, int nIterations, bool *pbStopFlag, const unsigned long nLoopKF, const bool bRobust) {
+void GlobalBundleAdjustemnt(Map *pMap, int nIterations, bool *pbStopFlag, const unsigned long nLoopKF, const bool bRobust) {
   vector<KeyFrame *> vpKFs = pMap->GetAllKeyFrames();
   vector<MapPoint *> vpMP = pMap->GetAllMapPoints();
   BundleAdjustment(vpKFs, vpMP, nIterations, pbStopFlag, nLoopKF, bRobust);
 }
 
-void Optimizer::BundleAdjustment(const vector<KeyFrame *> &vpKFs,
+void BundleAdjustment(const vector<KeyFrame *> &vpKFs,
                                  const vector<MapPoint *> &vpMP,
                                  int nIterations,
                                  bool *pbStopFlag,
@@ -216,7 +217,7 @@ void Optimizer::BundleAdjustment(const vector<KeyFrame *> &vpKFs,
   }
 }
 
-int Optimizer::PoseOptimization(Frame *pFrame) {
+int PoseOptimization(Frame *pFrame) {
   g2o::SparseOptimizer optimizer;
   g2o::BlockSolver_6_3::LinearSolverType *linearSolver;
 
@@ -411,7 +412,7 @@ int Optimizer::PoseOptimization(Frame *pFrame) {
   return nInitialCorrespondences - nBad;
 }
 
-void Optimizer::LocalBundleAdjustment(KeyFrame *pKF, bool *pbStopFlag, Map *pMap) {
+void LocalBundleAdjustment(KeyFrame *pKF, bool *pbStopFlag, Map *pMap) {
   // Local KeyFrames: First Breath Search from Current Keyframe
   list<KeyFrame *> lLocalKeyFrames;
 
@@ -709,7 +710,7 @@ void Optimizer::LocalBundleAdjustment(KeyFrame *pKF, bool *pbStopFlag, Map *pMap
   }
 }
 
-void Optimizer::OptimizeEssentialGraph(Map *pMap,
+void OptimizeEssentialGraph(Map *pMap,
                                        KeyFrame *pLoopKF,
                                        KeyFrame *pCurKF,
                                        const LoopClosing::KeyFrameAndPose &NonCorrectedSim3,
@@ -955,7 +956,7 @@ void Optimizer::OptimizeEssentialGraph(Map *pMap,
   }
 }
 
-int Optimizer::OptimizeSim3(KeyFrame *pKF1, KeyFrame *pKF2, vector<MapPoint *> &vpMatches1, g2o::Sim3 &g2oS12, const float th2, const bool bFixScale) {
+int OptimizeSim3(KeyFrame *pKF1, KeyFrame *pKF2, vector<MapPoint *> &vpMatches1, g2o::Sim3 &g2oS12, const float th2, const bool bFixScale) {
   g2o::SparseOptimizer optimizer;
   g2o::BlockSolverX::LinearSolverType *linearSolver;
 
@@ -1141,4 +1142,5 @@ int Optimizer::OptimizeSim3(KeyFrame *pKF1, KeyFrame *pKF2, vector<MapPoint *> &
   return nIn;
 }
 
+}  // namespace Optimizer
 }  // namespace ORB_SLAM2
