@@ -23,7 +23,7 @@
 #include "KeyFrame.hpp"
 #include "ORBmatcher.h"
 #include "Converter.hpp"
-#include "ORBextractor.h"
+#include "ORBextractor.hpp"
 
 namespace ORB_SLAM2 {
 

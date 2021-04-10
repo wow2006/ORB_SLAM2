@@ -49,7 +49,7 @@ target_sources(
   src/LoopClosing.cpp
   src/FrameDrawer.cpp
   src/LocalMapping.cpp
-  src/ORBextractor.cc
+  src/ORBextractor.cpp
   src/KeyFrameDatabase.cpp
 )
 
