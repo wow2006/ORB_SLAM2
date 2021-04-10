@@ -17,18 +17,13 @@
 * You should have received a copy of the GNU General Public License
 * along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
 */
-
-
+// Internal
 #include "Sim3Solver.hpp"
-
-#include <vector>
-#include <cmath>
-#include <opencv2/core/core.hpp>
-
+//
 #include "KeyFrame.hpp"
 #include "ORBmatcher.hpp"
-
-#include "Thirdparty/DBoW2/DUtils/Random.h"
+// DBoW2
+#include <DBoW2/DUtils/Random.h>
 
 namespace ORB_SLAM2
 {
