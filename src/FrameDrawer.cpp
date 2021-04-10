@@ -21,6 +21,7 @@
 // Internal
 #include "Map.hpp"
 #include "Tracking.hpp"
+#include "MapPoint.hpp"
 
 namespace ORB_SLAM2 {
 

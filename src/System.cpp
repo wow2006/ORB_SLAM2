@@ -20,8 +20,10 @@
 #include "System.hpp"
 // Internal
 #include "Map.hpp"
+#include "Frame.hpp"
 #include "Viewer.hpp"
 #include "Tracking.hpp"
+#include "KeyFrame.hpp"
 #include "MapDrawer.hpp"
 #include "Converter.hpp"
 #include "FrameDrawer.hpp"
