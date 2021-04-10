@@ -38,7 +38,7 @@ target_sources(
   src/Viewer.cc
   src/KeyFrame.cpp
   src/MapPoint.cpp
-  src/Tracking.cc
+  src/Tracking.cpp
   src/MapDrawer.cpp
   src/Optimizer.cpp
   src/PnPsolver.cpp

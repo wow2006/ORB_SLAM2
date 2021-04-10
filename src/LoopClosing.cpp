@@ -19,7 +19,7 @@
  */
 // Internal
 #include "Map.hpp"
-#include "Tracking.h"
+#include "Tracking.hpp"
 #include "Optimizer.hpp"
 #include "Sim3Solver.hpp"
 #include "ORBmatcher.hpp"

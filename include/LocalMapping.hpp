@@ -24,7 +24,7 @@
 #include "KeyFrame.hpp"
 #include "Map.hpp"
 #include "LoopClosing.hpp"
-#include "Tracking.h"
+#include "Tracking.hpp"
 #include "KeyFrameDatabase.hpp"
 
 #include <mutex>

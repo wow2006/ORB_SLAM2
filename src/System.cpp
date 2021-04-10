@@ -21,7 +21,7 @@
 // Internal
 #include "Map.hpp"
 #include "Viewer.h"
-#include "Tracking.h"
+#include "Tracking.hpp"
 #include "MapDrawer.hpp"
 #include "Converter.hpp"
 #include "FrameDrawer.hpp"
