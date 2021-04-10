@@ -18,14 +18,16 @@
  * along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
  */
 // Internal
+#include "LoopClosing.hpp"
+//
 #include "Map.hpp"
+#include "System.hpp" // TODO(Hussein): Replace with utilties
 #include "Tracking.hpp"
+#include "KeyFrame.hpp"
 #include "Optimizer.hpp"
+#include "Converter.hpp"
 #include "Sim3Solver.hpp"
 #include "ORBmatcher.hpp"
-#include "KeyFrame.hpp"
-#include "Converter.hpp"
-#include "LoopClosing.hpp"
 #include "LocalMapping.hpp"
 #include "KeyFrameDatabase.hpp"
 

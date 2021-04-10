@@ -1,128 +1,130 @@
 /**
-* This file is part of ORB-SLAM2.
-*
-* Copyright (C) 2014-2016 Raúl Mur-Artal <raulmur at unizar dot es> (University of Zaragoza)
-* For more information see <https://github.com/raulmur/ORB_SLAM2>
-*
-* ORB-SLAM2 is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* ORB-SLAM2 is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * This file is part of ORB-SLAM2.
+ *
+ * Copyright (C) 2014-2016 Raúl Mur-Artal <raulmur at unizar dot es> (University of Zaragoza)
+ * For more information see <https://github.com/raulmur/ORB_SLAM2>
+ *
+ * ORB-SLAM2 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * ORB-SLAM2 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
+ */
+#pragma once
 
-#ifndef LOCALMAPPING_H
-#define LOCALMAPPING_H
+namespace ORB_SLAM2 {
 
-#include "KeyFrame.hpp"
-#include "Map.hpp"
-#include "LoopClosing.hpp"
-#include "Tracking.hpp"
-#include "KeyFrameDatabase.hpp"
-
-#include <mutex>
-
-
-namespace ORB_SLAM2
-{
-
-class Tracking;
-class LoopClosing;
 class Map;
+class Tracking;
+class MapPoint;
+class KeyFrame;
+class LoopClosing;
 
-class LocalMapping
-{
+class LocalMapping final {
 public:
-    LocalMapping(Map* pMap, const float bMonocular);
+  LocalMapping(Map *pMap, const float bMonocular);
 
-    void SetLoopCloser(LoopClosing* pLoopCloser);
+  void SetLoopCloser(LoopClosing *pLoopCloser);
 
-    void SetTracker(Tracking* pTracker);
+  void SetTracker(Tracking *pTracker);
 
-    // Main function
-    void Run();
+  // Main function
+  void Run();
 
-    void InsertKeyFrame(KeyFrame* pKF);
+  void InsertKeyFrame(KeyFrame *pKF);
 
-    // Thread Synch
-    void RequestStop();
-    void RequestReset();
-    bool Stop();
-    void Release();
-    bool isStopped();
-    bool stopRequested();
-    bool AcceptKeyFrames();
-    void SetAcceptKeyFrames(bool flag);
-    bool SetNotStop(bool flag);
+  // Thread Synch
+  void RequestStop();
 
-    void InterruptBA();
+  void RequestReset();
 
-    void RequestFinish();
-    bool isFinished();
+  bool Stop();
 
-    int KeyframesInQueue(){
-        unique_lock<std::mutex> lock(mMutexNewKFs);
-        return mlNewKeyFrames.size();
-    }
+  void Release();
+
+  bool isStopped();
+
+  bool stopRequested();
+
+  bool AcceptKeyFrames();
+
+  void SetAcceptKeyFrames(bool flag);
+
+  bool SetNotStop(bool flag);
+
+  void InterruptBA();
+
+  void RequestFinish();
+
+  bool isFinished();
+
+  int KeyframesInQueue() {
+    std::unique_lock<std::mutex> lock(mMutexNewKFs);
+    return mlNewKeyFrames.size();
+  }
 
 protected:
+  bool CheckNewKeyFrames();
 
-    bool CheckNewKeyFrames();
-    void ProcessNewKeyFrame();
-    void CreateNewMapPoints();
+  void ProcessNewKeyFrame();
 
-    void MapPointCulling();
-    void SearchInNeighbors();
+  void CreateNewMapPoints();
 
-    void KeyFrameCulling();
+  void MapPointCulling();
 
-    cv::Mat ComputeF12(KeyFrame* &pKF1, KeyFrame* &pKF2);
+  void SearchInNeighbors();
 
-    cv::Mat SkewSymmetricMatrix(const cv::Mat &v);
+  void KeyFrameCulling();
 
-    bool mbMonocular;
+  cv::Mat ComputeF12(KeyFrame *&pKF1, KeyFrame *&pKF2);
 
-    void ResetIfRequested();
-    bool mbResetRequested;
-    std::mutex mMutexReset;
+  cv::Mat SkewSymmetricMatrix(const cv::Mat &v);
 
-    bool CheckFinish();
-    void SetFinish();
-    bool mbFinishRequested;
-    bool mbFinished;
-    std::mutex mMutexFinish;
+  bool mbMonocular;
 
-    Map* mpMap;
+  void ResetIfRequested();
 
-    LoopClosing* mpLoopCloser;
-    Tracking* mpTracker;
+  bool mbResetRequested;
+  std::mutex mMutexReset;
 
-    std::list<KeyFrame*> mlNewKeyFrames;
+  bool CheckFinish();
 
-    KeyFrame* mpCurrentKeyFrame;
+  void SetFinish();
 
-    std::list<MapPoint*> mlpRecentAddedMapPoints;
+  bool mbFinishRequested;
+  bool mbFinished;
+  std::mutex mMutexFinish;
 
-    std::mutex mMutexNewKFs;
+  Map *mpMap;
 
-    bool mbAbortBA;
+  LoopClosing *mpLoopCloser;
+  Tracking *mpTracker;
 
-    bool mbStopped;
-    bool mbStopRequested;
-    bool mbNotStop;
-    std::mutex mMutexStop;
+  std::list<KeyFrame *> mlNewKeyFrames;
 
-    bool mbAcceptKeyFrames;
-    std::mutex mMutexAccept;
+  KeyFrame *mpCurrentKeyFrame;
+
+  std::list<MapPoint *> mlpRecentAddedMapPoints;
+
+  std::mutex mMutexNewKFs;
+
+  bool mbAbortBA;
+
+  bool mbStopped;
+  bool mbStopRequested;
+  bool mbNotStop;
+  std::mutex mMutexStop;
+
+  bool mbAcceptKeyFrames;
+  std::mutex mMutexAccept;
 };
 
-} //namespace ORB_SLAM
+}  // namespace ORB_SLAM2
 
-#endif // LOCALMAPPING_H
