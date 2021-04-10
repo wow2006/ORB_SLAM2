@@ -18,6 +18,7 @@ find_package(OpenCV 3 REQUIRED imgproc features2d imgcodecs calib3d highgui)
 find_package(Eigen3   REQUIRED)
 find_package(Pangolin REQUIRED)
 find_package(spdlog   REQUIRED)
+find_package(range-v3   REQUIRED)
 # Thirdparty
 find_package(g2o   REQUIRED)
 find_package(DBoW2 REQUIRED)
@@ -71,6 +72,7 @@ target_link_libraries(
   ${PROJECT_NAME}
   PUBLIC
   spdlog::spdlog
+  range-v3
   ${OpenCV_LIBS}
   ${Pangolin_LIBRARIES}
   Eigen3::Eigen

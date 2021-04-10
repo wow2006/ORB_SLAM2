@@ -37,6 +37,8 @@
 #include <typeinfo>
 #include <algorithm>
 #include <unordered_map>
+// range-v3
+#include <range/v3/all.hpp>
 // Eigen
 #include <Eigen/LU>
 #include <Eigen/Core>
