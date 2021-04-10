@@ -41,31 +41,31 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
     mSensor(sensor), mpViewer(static_cast<Viewer *>(NULL)), mbReset(false), mbActivateLocalizationMode(false),
     mbDeactivateLocalizationMode(false) {
   // Output welcome message
-  cout << endl
-       << "ORB-SLAM2 Copyright (C) 2014-2016 Raul Mur-Artal, University of Zaragoza." << endl
-       << "This program comes with ABSOLUTELY NO WARRANTY;" << endl
-       << "This is free software, and you are welcome to redistribute it" << endl
-       << "under certain conditions. See LICENSE.txt." << endl
-       << endl;
+  spdlog::debug("ORB-SLAM2 Copyright (C) 2014-2016 Raul Mur-Artal, University of Zaragoza.");
+  spdlog::debug("This program comes with ABSOLUTELY NO WARRANTY;");
+  spdlog::debug("This is free software, and you are welcome to redistribute it");
+  spdlog::debug("under certain conditions. See LICENSE.txt.");
+  spdlog::debug("");
 
-  cout << "Input sensor was set to: ";
+  spdlog::debug("Input sensor was set to: ");
 
-  if(mSensor == MONOCULAR)
-    cout << "Monocular" << endl;
-  else if(mSensor == STEREO)
-    cout << "Stereo" << endl;
-  else if(mSensor == RGBD)
-    cout << "RGB-D" << endl;
+  if(mSensor == MONOCULAR) {
+    spdlog::debug("Monocular");
+  } else if(mSensor == STEREO) {
+    spdlog::debug("Stereo");
+  } else if(mSensor == RGBD) {
+    spdlog::debug("RGB-D");
+  }
 
   //Check settings file
   cv::FileStorage fsSettings(strSettingsFile.c_str(), cv::FileStorage::READ);
   if(!fsSettings.isOpened()) {
-    cerr << "Failed to open settings file at: " << strSettingsFile << endl;
-    exit(-1);
+    spdlog::error("Failed to open settings file at: {}", strSettingsFile);
+    exit(-1); // TODO(Hussein): Remove this
   }
 
   //Load ORB Vocabulary
-  cout << endl << "Loading ORB Vocabulary. This could take a while..." << endl;
+  spdlog::debug("Loading ORB Vocabulary. This could take a while...");
 
   mpVocabulary = new ORBVocabulary();
 
@@ -78,11 +78,11 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
   }
 
   if(!bVocLoad) {
-    cerr << "Wrong path to vocabulary. " << endl;
-    cerr << "Falied to open at: " << strVocFile << endl;
-    exit(-1);
+    spdlog::error("Wrong path to vocabulary. ");
+    spdlog::error("Falied to open at: {}", strVocFile);
+    exit(-1); // TODO(Hussein): Remove this
   }
-  cout << "Vocabulary loaded!" << endl << endl;
+  spdlog::debug("Vocabulary loaded!");
 
   //Create KeyFrame Database
   mpKeyFrameDatabase = new KeyFrameDatabase(*mpVocabulary);

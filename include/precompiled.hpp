@@ -54,4 +54,8 @@
 #include <opencv2/features2d.hpp>
 // pangolin
 #include <pangolin/pangolin.h>
+// spdlog
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 

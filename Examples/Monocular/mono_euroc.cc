@@ -25,7 +25,7 @@ using namespace std;
 static bool LoadImages(const string &strImagePath, const string &strPathTimes, vector<string> &vstrImages, vector<double> &vTimeStamps) {
   std::ifstream fTimes(strPathTimes);
   if(!fTimes.is_open()) {
-    std::cerr << "Can not open \"" << strPathTimes << "\"\n";
+    spdlog::error("Can not open \"{}\"", strPathTimes);
     return false;
   }
 
@@ -48,11 +48,28 @@ static bool LoadImages(const string &strImagePath, const string &strPathTimes, v
   return true;
 }
 
+static void createLogger() {
+  spdlog::sink_ptr pConsoleSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+  pConsoleSink->set_level(spdlog::level::trace);
+
+  spdlog::sink_ptr pFileSink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/mono_euroc.txt", true);
+  pFileSink->set_level(spdlog::level::trace);
+
+  spdlog::sinks_init_list pSinkList = { pConsoleSink, pFileSink };
+
+  auto pLogger = std::make_shared<spdlog::logger>("multi_sink", pSinkList);
+  pLogger->set_level(spdlog::level::trace);
+
+  spdlog::set_default_logger(pLogger);
+}
+
 int main(int argc, char **argv) {
   if(argc != 5) {
-    cerr << endl << "Usage: ./mono_tum path_to_vocabulary path_to_settings path_to_image_folder path_to_times_file" << endl;
-    return 1;
+    std::cerr << "\nUsage: ./mono_tum path_to_vocabulary path_to_settings path_to_image_folder path_to_times_file\n";
+    return EXIT_FAILURE;
   }
+
+  createLogger();
 
   // Retrieve paths to images
   std::vector<string> vstrImageFilenames;
@@ -64,7 +81,7 @@ int main(int argc, char **argv) {
   const int nImages = vstrImageFilenames.size();
 
   if(nImages <= 0) {
-    std::cerr << "ERROR: Failed to load images\n";
+    spdlog::error("ERROR: Failed to load images");
     return 1;
   }
 
@@ -75,9 +92,9 @@ int main(int argc, char **argv) {
   std::vector<float> vTimesTrack;
   vTimesTrack.resize(nImages);
 
-  std::cout << "\n-------\n";
-  std::cout << "Start processing sequence ...\n";
-  std::cout << "Images in the sequence: " << nImages << "\n\n";
+  spdlog::debug("-------");
+  spdlog::debug("Start processing sequence ...");
+  spdlog::debug("Images in the sequence: {}", nImages);
 
   // Main loop
   cv::Mat im;
@@ -123,9 +140,9 @@ int main(int argc, char **argv) {
   for(int ni = 0; ni < nImages; ni++) {
     totaltime += vTimesTrack[ni];
   }
-  std::cout << "-------\n\n";
-  std::cout << "median tracking time: " << vTimesTrack[nImages / 2] << std::endl;
-  std::cout << "mean tracking time: " << totaltime / nImages << std::endl;
+  spdlog::debug("-------");
+  spdlog::debug("median tracking time: {}", vTimesTrack[nImages / 2]);
+  spdlog::debug("mean tracking time: ", totaltime / nImages);
 
   // Save camera trajectory
   SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory.txt");
