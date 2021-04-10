@@ -19,6 +19,7 @@
  */
 // Internal
 #include "Frame.hpp"
+//
 #include "MapPoint.hpp"
 #include "KeyFrame.hpp"
 #include "ORBmatcher.hpp"

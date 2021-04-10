@@ -23,6 +23,8 @@
 #include "Map.hpp"
 #include "Viewer.hpp"
 #include "System.hpp"
+#include "KeyFrame.hpp"
+#include "MapPoint.hpp"
 #include "Converter.hpp"
 #include "MapDrawer.hpp"
 #include "Optimizer.hpp"

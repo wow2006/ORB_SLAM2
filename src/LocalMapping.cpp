@@ -22,6 +22,7 @@
 //
 #include "Map.hpp"
 #include "System.hpp" // TODO(Hussein): Replace with utilties
+#include "MapPoint.hpp"
 #include "KeyFrame.hpp"
 #include "Tracking.hpp"
 #include "Optimizer.hpp"
