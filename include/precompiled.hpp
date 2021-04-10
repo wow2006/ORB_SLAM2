@@ -7,6 +7,7 @@
 #include <mutex>
 #include <queue>
 #include <stack>
+#include <atomic>
 #include <bitset>
 #include <cctype>
 #include <cfloat>

@@ -35,14 +35,15 @@ Viewer::Viewer(System *pSystem, FrameDrawer *pFrameDrawer, MapDrawer *pMapDrawer
   cv::FileStorage fSettings(strSettingPath, cv::FileStorage::READ);
 
   float fps = fSettings["Camera.fps"];
-  if(fps < 1)
+  if(fps < 1) {
     fps = 30;
+  }
   mT = 1e3 / fps;
 
-  mImageWidth = fSettings["Camera.width"];
+  mImageWidth  = fSettings["Camera.width"];
   mImageHeight = fSettings["Camera.height"];
   if(mImageWidth < 1 || mImageHeight < 1) {
-    mImageWidth = 640;
+    mImageWidth  = 640;
     mImageHeight = 480;
   }
 
@@ -54,7 +55,7 @@ Viewer::Viewer(System *pSystem, FrameDrawer *pFrameDrawer, MapDrawer *pMapDrawer
 
 void Viewer::Run() {
   mbFinished = false;
-  mbStopped = false;
+  mbStopped  = false;
 
   pangolin::CreateWindowAndBind("ORB-SLAM2: Map Viewer", 1024, 768);
 
@@ -78,8 +79,7 @@ void Viewer::Run() {
                                     pangolin::ModelViewLookAt(mViewpointX, mViewpointY, mViewpointZ, 0, 0, 0, 0.0, -1.0, 0.0));
 
   // Add named OpenGL viewport to window and provide 3D Handler
-  pangolin::View &d_cam =
-    pangolin::CreateDisplay().SetBounds(0.0, 1.0, pangolin::Attach::Pix(175), 1.0, -1024.0f / 768.0f).SetHandler(new pangolin::Handler3D(s_cam));
+  pangolin::View &d_cam = pangolin::CreateDisplay().SetBounds(0.0, 1.0, pangolin::Attach::Pix(175), 1.0, -1024.0F / 768.0F).SetHandler(new pangolin::Handler3D(s_cam));
 
   pangolin::OpenGlMatrix Twc;
   Twc.SetIdentity();
@@ -89,7 +89,7 @@ void Viewer::Run() {
   bool bFollow = true;
   bool bLocalizationMode = false;
 
-  while(1) {
+  while(true) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     mpMapDrawer->GetCurrentOpenGLCameraMatrix(Twc);
@@ -113,12 +113,14 @@ void Viewer::Run() {
     }
 
     d_cam.Activate(s_cam);
-    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glClearColor(1.0F, 1.0F, 1.0F, 1.0F);
     mpMapDrawer->DrawCurrentCamera(Twc);
-    if(menuShowKeyFrames || menuShowGraph)
+    if(menuShowKeyFrames || menuShowGraph) {
       mpMapDrawer->DrawKeyFrames(menuShowKeyFrames, menuShowGraph);
-    if(menuShowPoints)
+    }
+    if(menuShowPoints) {
       mpMapDrawer->DrawMapPoints();
+    }
 
     pangolin::FinishFrame();
 
@@ -127,15 +129,16 @@ void Viewer::Run() {
     cv::waitKey(mT);
 
     if(menuReset) {
-      menuShowGraph = true;
-      menuShowKeyFrames = true;
-      menuShowPoints = true;
+      menuShowGraph        = true;
+      menuShowKeyFrames    = true;
+      menuShowPoints       = true;
       menuLocalizationMode = false;
-      if(bLocalizationMode)
+      if(bLocalizationMode) {
         mpSystem->DeactivateLocalizationMode();
+      }
       bLocalizationMode = false;
-      bFollow = true;
-      menuFollowCamera = true;
+      bFollow           = true;
+      menuFollowCamera  = true;
       mpSystem->Reset();
       menuReset = false;
     }
@@ -146,51 +149,46 @@ void Viewer::Run() {
       }
     }
 
-    if(CheckFinish())
+    if(CheckFinish()) {
       break;
+    }
   }
 
   SetFinish();
 }
 
 void Viewer::RequestFinish() {
-  unique_lock<mutex> lock(mMutexFinish);
   mbFinishRequested = true;
 }
 
 bool Viewer::CheckFinish() {
-  unique_lock<mutex> lock(mMutexFinish);
   return mbFinishRequested;
 }
 
 void Viewer::SetFinish() {
-  unique_lock<mutex> lock(mMutexFinish);
   mbFinished = true;
 }
 
 bool Viewer::isFinished() {
-  unique_lock<mutex> lock(mMutexFinish);
   return mbFinished;
 }
 
 void Viewer::RequestStop() {
-  unique_lock<mutex> lock(mMutexStop);
-  if(!mbStopped)
+  if(!mbStopped) {
     mbStopRequested = true;
+  }
 }
 
 bool Viewer::isStopped() {
-  unique_lock<mutex> lock(mMutexStop);
   return mbStopped;
 }
 
 bool Viewer::Stop() {
-  unique_lock<mutex> lock(mMutexStop);
-  unique_lock<mutex> lock2(mMutexFinish);
-
-  if(mbFinishRequested)
+  if(mbFinishRequested) {
     return false;
-  else if(mbStopRequested) {
+  }
+
+  if(mbStopRequested) {
     mbStopped = true;
     mbStopRequested = false;
     return true;
@@ -200,7 +198,6 @@ bool Viewer::Stop() {
 }
 
 void Viewer::Release() {
-  unique_lock<mutex> lock(mMutexStop);
   mbStopped = false;
 }
 

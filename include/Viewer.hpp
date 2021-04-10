@@ -47,10 +47,10 @@ public:
 private:
   bool Stop();
 
-  System *mpSystem;
+  System      *mpSystem;
   FrameDrawer *mpFrameDrawer;
-  MapDrawer *mpMapDrawer;
-  Tracking *mpTracker;
+  MapDrawer   *mpMapDrawer;
+  Tracking    *mpTracker;
 
   // 1/fps in ms
   double mT;
@@ -59,14 +59,15 @@ private:
   float mViewpointX, mViewpointY, mViewpointZ, mViewpointF;
 
   bool CheckFinish();
-  void SetFinish();
-  bool mbFinishRequested;
-  bool mbFinished;
-  std::mutex mMutexFinish;
 
-  bool mbStopped;
-  bool mbStopRequested;
-  std::mutex mMutexStop;
+  void SetFinish();
+
+  std::atomic_bool mbFinishRequested;
+  std::atomic_bool mbFinished;
+
+  std::atomic_bool mbStopped;
+  std::atomic_bool mbStopRequested;
+
 };
 
 }  // namespace ORB_SLAM2
