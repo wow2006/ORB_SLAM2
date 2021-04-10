@@ -19,7 +19,7 @@
  */
 #pragma once
 // Internal
-#include "ORBVocabulary.h"
+#include "ORBVocabulary.hpp"
 // DBoW2
 #include <DBoW2/BowVector.h>
 #include <DBoW2/FeatureVector.h>

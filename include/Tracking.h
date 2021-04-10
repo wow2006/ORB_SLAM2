@@ -31,7 +31,7 @@
 #include"LocalMapping.hpp"
 #include"LoopClosing.hpp"
 #include"Frame.hpp"
-#include "ORBVocabulary.h"
+#include "ORBVocabulary.hpp"
 #include"KeyFrameDatabase.hpp"
 #include"ORBextractor.hpp"
 #include "Initializer.hpp"

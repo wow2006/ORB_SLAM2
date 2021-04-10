@@ -19,7 +19,7 @@
  */
 #pragma once
 // Internal
-#include "ORBVocabulary.h"
+#include "ORBVocabulary.hpp"
 // g2o
 #include <g2o/types/types_seven_dof_expmap.h>
 

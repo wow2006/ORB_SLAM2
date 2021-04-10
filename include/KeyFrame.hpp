@@ -24,7 +24,7 @@
 #include "MapPoint.hpp"
 #include "Thirdparty/DBoW2/DBoW2/BowVector.h"
 #include "Thirdparty/DBoW2/DBoW2/FeatureVector.h"
-#include "ORBVocabulary.h"
+#include "ORBVocabulary.hpp"
 #include "ORBextractor.hpp"
 #include "Frame.hpp"
 #include "KeyFrameDatabase.hpp"

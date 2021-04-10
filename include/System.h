@@ -33,7 +33,7 @@
 #include "LocalMapping.hpp"
 #include "LoopClosing.hpp"
 #include "KeyFrameDatabase.hpp"
-#include "ORBVocabulary.h"
+#include "ORBVocabulary.hpp"
 #include "Viewer.h"
 
 extern void usleep(uint32_t useconds);

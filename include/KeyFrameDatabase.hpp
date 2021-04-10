@@ -19,7 +19,7 @@
  */
 #pragma once
 // Internal
-#include "ORBVocabulary.h"
+#include "ORBVocabulary.hpp"
 
 namespace ORB_SLAM2 {
 
