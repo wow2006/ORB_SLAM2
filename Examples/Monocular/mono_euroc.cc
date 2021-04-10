@@ -18,7 +18,7 @@
  * along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
  */
 // Internal
-#include <System.h>
+#include <System.hpp>
 
 using namespace std;
 

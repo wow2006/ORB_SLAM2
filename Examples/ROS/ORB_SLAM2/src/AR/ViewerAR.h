@@ -26,7 +26,7 @@
 #include <opencv2/core/core.hpp>
 #include <pangolin/pangolin.h>
 #include <string>
-#include"../../../include/System.h"
+#include"../../../include/System.hpp"
 
 namespace ORB_SLAM2
 {

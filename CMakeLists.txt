@@ -34,7 +34,7 @@ target_sources(
   PRIVATE
   src/Map.cpp
   src/Frame.cpp
-  src/System.cc
+  src/System.cpp
   src/Viewer.cc
   src/KeyFrame.cpp
   src/MapPoint.cpp

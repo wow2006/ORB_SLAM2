@@ -30,7 +30,7 @@
 #include<opencv2/core/core.hpp>
 #include<opencv2/imgproc/imgproc.hpp>
 
-#include"../../../include/System.h"
+#include"../../../include/System.hpp"
 
 #include"ViewerAR.h"
 
