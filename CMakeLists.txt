@@ -41,7 +41,7 @@ target_sources(
   src/Tracking.cc
   src/MapDrawer.cpp
   src/Optimizer.cpp
-  src/PnPsolver.cc
+  src/PnPsolver.cpp
   src/Converter.cpp
   src/ORBmatcher.cpp
   src/Sim3Solver.cc

@@ -31,7 +31,7 @@
 #include"Initializer.hpp"
 
 #include"Optimizer.hpp"
-#include"PnPsolver.h"
+#include"PnPsolver.hpp"
 
 #include<iostream>
 

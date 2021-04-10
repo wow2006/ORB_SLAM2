@@ -50,7 +50,7 @@
 
 #include <iostream>
 
-#include "PnPsolver.h"
+#include "PnPsolver.hpp"
 
 #include <vector>
 #include <cmath>
