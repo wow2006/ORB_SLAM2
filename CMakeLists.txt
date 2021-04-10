@@ -40,7 +40,7 @@ target_sources(
   src/MapPoint.cpp
   src/Tracking.cc
   src/MapDrawer.cpp
-  src/Optimizer.cc
+  src/Optimizer.cpp
   src/PnPsolver.cc
   src/Converter.cpp
   src/ORBmatcher.cc

@@ -30,7 +30,7 @@
 #include"Map.hpp"
 #include"Initializer.hpp"
 
-#include"Optimizer.h"
+#include"Optimizer.hpp"
 #include"PnPsolver.h"
 
 #include<iostream>

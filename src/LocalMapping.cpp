@@ -21,7 +21,7 @@
 #include "LocalMapping.hpp"
 #include "LoopClosing.hpp"
 #include "ORBmatcher.h"
-#include "Optimizer.h"
+#include "Optimizer.hpp"
 
 #include<mutex>
 
