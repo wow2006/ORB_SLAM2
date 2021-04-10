@@ -22,7 +22,7 @@
 #define OPTIMIZER_H
 
 #include "Map.hpp"
-#include "MapPoint.h"
+#include "MapPoint.hpp"
 #include "KeyFrame.hpp"
 #include "LoopClosing.hpp"
 #include "Frame.hpp"

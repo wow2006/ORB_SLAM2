@@ -22,7 +22,7 @@
 #define MAPDRAWER_H
 
 #include"Map.hpp"
-#include"MapPoint.h"
+#include"MapPoint.hpp"
 #include"KeyFrame.hpp"
 #include<pangolin/pangolin.h>
 

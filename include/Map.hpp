@@ -21,7 +21,7 @@
 #ifndef MAP_H
 #define MAP_H
 
-#include "MapPoint.h"
+#include "MapPoint.hpp"
 #include "KeyFrame.hpp"
 #include <set>
 

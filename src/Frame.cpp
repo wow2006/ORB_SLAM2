@@ -19,7 +19,7 @@
  */
 // Internal
 #include "Frame.hpp"
-#include "MapPoint.h"
+#include "MapPoint.hpp"
 #include "KeyFrame.hpp"
 #include "ORBmatcher.h"
 #include "Converter.hpp"

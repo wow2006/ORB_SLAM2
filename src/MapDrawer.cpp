@@ -19,7 +19,7 @@
 */
 
 #include "MapDrawer.hpp"
-#include "MapPoint.h"
+#include "MapPoint.hpp"
 #include "KeyFrame.hpp"
 #include <pangolin/pangolin.h>
 #include <mutex>
