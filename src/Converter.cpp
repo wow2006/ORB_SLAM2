@@ -50,7 +50,7 @@ cv::Mat toCvMat(const g2o::SE3Quat &SE3) {
 
 cv::Mat toCvMat(const g2o::Sim3 &Sim3) {
   const Eigen::Matrix3d eigR = Sim3.rotation().toRotationMatrix();
-  const Eigen::Vector3d eigt = Sim3.translation();
+  const Eigen::Vector3d& eigt = Sim3.translation();
   const double s = Sim3.scale();
   return toCvSE3(s * eigR, eigt);
 }
