@@ -25,7 +25,7 @@
 #include<opencv2/core/core.hpp>
 #include<opencv2/features2d/features2d.hpp>
 
-#include"Viewer.h"
+#include"Viewer.hpp"
 #include"FrameDrawer.hpp"
 #include"Map.hpp"
 #include"LocalMapping.hpp"

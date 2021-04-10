@@ -35,7 +35,7 @@ target_sources(
   src/Map.cpp
   src/Frame.cpp
   src/System.cpp
-  src/Viewer.cc
+  src/Viewer.cpp
   src/KeyFrame.cpp
   src/MapPoint.cpp
   src/Tracking.cpp

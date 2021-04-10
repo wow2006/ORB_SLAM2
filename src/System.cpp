@@ -20,7 +20,7 @@
 #include "System.hpp"
 // Internal
 #include "Map.hpp"
-#include "Viewer.h"
+#include "Viewer.hpp"
 #include "Tracking.hpp"
 #include "MapDrawer.hpp"
 #include "Converter.hpp"
