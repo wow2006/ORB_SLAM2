@@ -29,7 +29,7 @@
 #include "Tracking.h"
 #include "FrameDrawer.hpp"
 #include "MapDrawer.hpp"
-#include "Map.h"
+#include "Map.hpp"
 #include "LocalMapping.hpp"
 #include "LoopClosing.hpp"
 #include "KeyFrameDatabase.hpp"

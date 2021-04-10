@@ -22,7 +22,7 @@
 #define LOCALMAPPING_H
 
 #include "KeyFrame.hpp"
-#include "Map.h"
+#include "Map.hpp"
 #include "LoopClosing.hpp"
 #include "Tracking.h"
 #include "KeyFrameDatabase.hpp"

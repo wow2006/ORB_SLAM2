@@ -18,7 +18,7 @@
  * along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
  */
 // Internal
-#include "Map.h"
+#include "Map.hpp"
 #include "Tracking.h"
 #include "Optimizer.h"
 #include "Sim3Solver.h"

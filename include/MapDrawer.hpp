@@ -21,7 +21,7 @@
 #ifndef MAPDRAWER_H
 #define MAPDRAWER_H
 
-#include"Map.h"
+#include"Map.hpp"
 #include"MapPoint.h"
 #include"KeyFrame.hpp"
 #include<pangolin/pangolin.h>

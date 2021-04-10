@@ -21,7 +21,7 @@
 #ifndef OPTIMIZER_H
 #define OPTIMIZER_H
 
-#include "Map.h"
+#include "Map.hpp"
 #include "MapPoint.h"
 #include "KeyFrame.hpp"
 #include "LoopClosing.hpp"

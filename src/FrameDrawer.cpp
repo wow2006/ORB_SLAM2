@@ -19,7 +19,7 @@
  */
 #include "FrameDrawer.hpp"
 // Internal
-#include "Map.h"
+#include "Map.hpp"
 #include "Tracking.h"
 
 namespace ORB_SLAM2 {

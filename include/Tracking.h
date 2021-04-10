@@ -27,7 +27,7 @@
 
 #include"Viewer.h"
 #include"FrameDrawer.hpp"
-#include"Map.h"
+#include"Map.hpp"
 #include"LocalMapping.hpp"
 #include"LoopClosing.hpp"
 #include"Frame.hpp"

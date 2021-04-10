@@ -23,7 +23,7 @@
 
 #include"KeyFrame.hpp"
 #include"Frame.hpp"
-#include"Map.h"
+#include"Map.hpp"
 
 #include<opencv2/core/core.hpp>
 #include<mutex>

@@ -27,7 +27,7 @@
 #include"ORBmatcher.h"
 #include"FrameDrawer.hpp"
 #include"Converter.hpp"
-#include"Map.h"
+#include"Map.hpp"
 #include"Initializer.hpp"
 
 #include"Optimizer.h"

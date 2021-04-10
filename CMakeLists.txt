@@ -32,7 +32,7 @@ add_library(
 target_sources(
   ${PROJECT_NAME}
   PRIVATE
-  src/Map.cc
+  src/Map.cpp
   src/Frame.cpp
   src/System.cc
   src/Viewer.cc
