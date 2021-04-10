@@ -18,7 +18,7 @@
 * along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "ORBmatcher.h"
+#include "ORBmatcher.hpp"
 
 #include<limits.h>
 

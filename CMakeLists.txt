@@ -43,7 +43,7 @@ target_sources(
   src/Optimizer.cpp
   src/PnPsolver.cc
   src/Converter.cpp
-  src/ORBmatcher.cc
+  src/ORBmatcher.cpp
   src/Sim3Solver.cc
   src/Initializer.cpp
   src/LoopClosing.cpp
