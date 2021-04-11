@@ -574,7 +574,7 @@ void Frame::ComputeStereoMatches() {
         float dist = cv::norm(IL, IR, cv::NORM_L1);
         if(dist < bestDist2) {
           bestDist2 = dist;
-          bestincR  = incR;
+          bestincR = incR;
         }
 
         vDists[L + incR] = dist;
@@ -625,8 +625,8 @@ void Frame::ComputeStereoMatches() {
 }
 
 void Frame::ComputeStereoFromRGBD(const cv::Mat &imDepth) {
-  mvuRight = vector<float>(N, -1);
-  mvDepth = vector<float>(N, -1);
+  mvuRight = std::vector<float>(N, -1);
+  mvDepth  = std::vector<float>(N, -1);
 
   for(int i = 0; i < N; i++) {
     const cv::KeyPoint &kp = mvKeys[i];
@@ -645,16 +645,17 @@ void Frame::ComputeStereoFromRGBD(const cv::Mat &imDepth) {
 }
 
 cv::Mat Frame::UnprojectStereo(const int &i) {
-  const float z = mvDepth[i];
+  const float z = mvDepth[static_cast<size_t>(i)];
   if(z > 0) {
-    const float u = mvKeysUn[i].pt.x;
-    const float v = mvKeysUn[i].pt.y;
+    const auto& key = mvKeysUn[static_cast<size_t>(i)];
+    const float u = key.pt.x;
+    const float v = key.pt.y;
     const float x = (u - cx) * z * invfx;
     const float y = (v - cy) * z * invfy;
     cv::Mat x3Dc = (cv::Mat_<float>(3, 1) << x, y, z);
     return mRwc * x3Dc + mOw;
-  } else
-    return cv::Mat();
+  }
+  return cv::Mat();
 }
 
 }  // namespace ORB_SLAM2

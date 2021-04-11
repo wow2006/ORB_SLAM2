@@ -53,15 +53,14 @@ Tracking::Tracking(System *pSys,
                    const int sensor) :
     mState(NO_IMAGES_YET),
     mSensor(sensor), mbOnlyTracking(false), mbVO(false), mpORBVocabulary(pVoc), mpKeyFrameDB(pKFDB),
-    mpInitializer(static_cast<Initializer *>(NULL)), mpSystem(pSys), mpViewer(NULL), mpFrameDrawer(pFrameDrawer),
+    mpInitializer(nullptr), mpSystem(pSys), mpViewer(nullptr), mpFrameDrawer(pFrameDrawer),
     mpMapDrawer(pMapDrawer), mpMap(pMap), mnLastRelocFrameId(0) {
   // Load camera parameters from settings file
-
   cv::FileStorage fSettings(strSettingPath, cv::FileStorage::READ);
-  float fx = fSettings["Camera.fx"];
-  float fy = fSettings["Camera.fy"];
-  float cx = fSettings["Camera.cx"];
-  float cy = fSettings["Camera.cy"];
+  const float fx = fSettings["Camera.fx"];
+  const float fy = fSettings["Camera.fy"];
+  const float cx = fSettings["Camera.cx"];
+  const float cy = fSettings["Camera.cy"];
 
   cv::Mat K = cv::Mat::eye(3, 3, CV_32F);
   K.at<float>(0, 0) = fx;
@@ -85,68 +84,73 @@ Tracking::Tracking(System *pSys,
   mbf = fSettings["Camera.bf"];
 
   float fps = fSettings["Camera.fps"];
-  if(fps == 0)
+  if(fps == 0) {
     fps = 30;
+  }
 
   // Max/Min Frames to insert keyframes and to check relocalisation
   mMinFrames = 0;
-  mMaxFrames = fps;
+  mMaxFrames = static_cast<int>(fps);
 
-  cout << endl << "Camera Parameters: " << endl;
-  cout << "- fx: " << fx << endl;
-  cout << "- fy: " << fy << endl;
-  cout << "- cx: " << cx << endl;
-  cout << "- cy: " << cy << endl;
-  cout << "- k1: " << DistCoef.at<float>(0) << endl;
-  cout << "- k2: " << DistCoef.at<float>(1) << endl;
-  if(DistCoef.rows == 5)
-    cout << "- k3: " << DistCoef.at<float>(4) << endl;
-  cout << "- p1: " << DistCoef.at<float>(2) << endl;
-  cout << "- p2: " << DistCoef.at<float>(3) << endl;
-  cout << "- fps: " << fps << endl;
+  spdlog::debug("Camera Parameters: ");
+  spdlog::debug("- fx: {}", fx);
+  spdlog::debug("- fy: {}", fy);
+  spdlog::debug("- cx: {}", cx);
+  spdlog::debug("- cy: {}", cy);
+  spdlog::debug("- k1: {}", DistCoef.at<float>(0));
+  spdlog::debug("- k2: {}", DistCoef.at<float>(1));
+  if(DistCoef.rows == 5) {
+    spdlog::debug("- k3: {}",  DistCoef.at<float>(4));
+  }
+  spdlog::debug("- p1: {}",  DistCoef.at<float>(2));
+  spdlog::debug("- p2: {}",  DistCoef.at<float>(3));
+  spdlog::debug("- fps: {}", fps);
 
   int nRGB = fSettings["Camera.RGB"];
   mbRGB = nRGB;
 
-  if(mbRGB)
-    cout << "- color order: RGB (ignored if grayscale)" << endl;
-  else
-    cout << "- color order: BGR (ignored if grayscale)" << endl;
+  if(mbRGB) {
+    spdlog::debug("- color order: RGB (ignored if grayscale)");
+  } else {
+    spdlog::debug("- color order: BGR (ignored if grayscale)");
+  }
 
   // Load ORB parameters
-
-  int nFeatures = fSettings["ORBextractor.nFeatures"];
+  int   nFeatures    = fSettings["ORBextractor.nFeatures"];
   float fScaleFactor = fSettings["ORBextractor.scaleFactor"];
-  int nLevels = fSettings["ORBextractor.nLevels"];
-  int fIniThFAST = fSettings["ORBextractor.iniThFAST"];
-  int fMinThFAST = fSettings["ORBextractor.minThFAST"];
+  int   nLevels      = fSettings["ORBextractor.nLevels"];
+  int   fIniThFAST   = fSettings["ORBextractor.iniThFAST"];
+  int   fMinThFAST   = fSettings["ORBextractor.minThFAST"];
 
   mpORBextractorLeft = new ORBextractor(nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
 
-  if(sensor == System::STEREO)
+  if(sensor == System::STEREO) {
     mpORBextractorRight = new ORBextractor(nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
+  }
 
-  if(sensor == System::MONOCULAR)
+  if(sensor == System::MONOCULAR) {
     mpIniORBextractor = new ORBextractor(2 * nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
+  }
 
-  cout << endl << "ORB Extractor Parameters: " << endl;
-  cout << "- Number of Features: " << nFeatures << endl;
-  cout << "- Scale Levels: " << nLevels << endl;
-  cout << "- Scale Factor: " << fScaleFactor << endl;
-  cout << "- Initial Fast Threshold: " << fIniThFAST << endl;
-  cout << "- Minimum Fast Threshold: " << fMinThFAST << endl;
+  spdlog::debug("ORB Extractor Parameters: ");
+  spdlog::debug("- Number of Features: {}", nFeatures);
+  spdlog::debug("- Scale Levels: {}", nLevels);
+  spdlog::debug("- Scale Factor: {}", fScaleFactor);
+  spdlog::debug("- Initial Fast Threshold: {}", fIniThFAST);
+  spdlog::debug("- Minimum Fast Threshold: {}", fMinThFAST);
 
   if(sensor == System::STEREO || sensor == System::RGBD) {
-    mThDepth = mbf * (float)fSettings["ThDepth"] / fx;
-    cout << endl << "Depth Threshold (Close/Far Points): " << mThDepth << endl;
+    mThDepth = mbf * static_cast<float>(fSettings["ThDepth"]) / fx;
+    spdlog::debug("Depth Threshold (Close/Far Points): {}", mThDepth);
   }
 
   if(sensor == System::RGBD) {
     mDepthMapFactor = fSettings["DepthMapFactor"];
-    if(fabs(mDepthMapFactor) < 1e-5)
+    if(std::abs(static_cast<double>(mDepthMapFactor)) < 1e-5) {
       mDepthMapFactor = 1;
-    else
+    } else {
       mDepthMapFactor = 1.0f / mDepthMapFactor;
+    }
   }
 }
 
@@ -404,7 +408,7 @@ void Tracking::Track() {
     // Reset if the camera get lost soon after initialization
     if(mState == LOST) {
       if(mpMap->KeyFramesInMap() <= 5) {
-        cout << "Track lost soon after initialisation, reseting..." << endl;
+        spdlog::debug("Track lost soon after initialisation, reseting...");
         mpSystem->Reset();
         return;
       }
@@ -459,12 +463,12 @@ void Tracking::StereoInitialization() {
       }
     }
 
-    cout << "New map created with " << mpMap->MapPointsInMap() << " points" << endl;
+    spdlog::debug("New map created with {} points", mpMap->MapPointsInMap());
 
     mpLocalMapper->InsertKeyFrame(pKFini);
 
     mLastFrame = Frame(mCurrentFrame);
-    mnLastKeyFrameId = mCurrentFrame.mnId;
+    mnLastKeyFrameId = static_cast<uint32_t>(mCurrentFrame.mnId);
     mpLastKeyFrame = pKFini;
 
     mvpLocalKeyFrames.push_back(pKFini);
@@ -590,7 +594,7 @@ void Tracking::CreateInitialMapMonocular() {
   pKFcur->UpdateConnections();
 
   // Bundle Adjustment
-  cout << "New Map created with " << mpMap->MapPointsInMap() << " points" << endl;
+  spdlog::debug("New Map created with {} points", mpMap->MapPointsInMap());
 
   Optimizer::GlobalBundleAdjustemnt(mpMap, 20);
 
@@ -599,7 +603,7 @@ void Tracking::CreateInitialMapMonocular() {
   float invMedianDepth = 1.0f / medianDepth;
 
   if(medianDepth < 0 || pKFcur->TrackedMapPoints(1) < 100) {
-    cout << "Wrong initialization, reseting..." << endl;
+    spdlog::debug("Wrong initialization, reseting...");
     Reset();
     return;
   }
@@ -610,7 +614,7 @@ void Tracking::CreateInitialMapMonocular() {
   pKFcur->SetPose(Tc2w);
 
   // Scale points
-  vector<MapPoint *> vpAllMapPoints = pKFini->GetMapPointMatches();
+  std::vector<MapPoint *> vpAllMapPoints = pKFini->GetMapPointMatches();
   for(size_t iMP = 0; iMP < vpAllMapPoints.size(); iMP++) {
     if(vpAllMapPoints[iMP]) {
       MapPoint *pMP = vpAllMapPoints[iMP];
@@ -1295,27 +1299,28 @@ bool Tracking::Relocalization() {
 }
 
 void Tracking::Reset() {
-  cout << "System Reseting" << endl;
+  spdlog::debug("System Reseting");
   if(mpViewer) {
     mpViewer->RequestStop();
-    while(!mpViewer->isStopped())
+    while(!mpViewer->isStopped()) {
       usleep(3000);
+    }
   }
 
   // Reset Local Mapping
-  cout << "Reseting Local Mapper...";
+  spdlog::debug("Reseting Local Mapper...");
   mpLocalMapper->RequestReset();
-  cout << " done" << endl;
+  spdlog::debug("done");
 
   // Reset Loop Closing
-  cout << "Reseting Loop Closing...";
+  spdlog::debug("Reseting Loop Closing...");
   mpLoopClosing->RequestReset();
-  cout << " done" << endl;
+  spdlog::debug("done");
 
   // Clear BoW Database
-  cout << "Reseting Database...";
+  spdlog::debug("Reseting Database...");
   mpKeyFrameDB->clear();
-  cout << " done" << endl;
+  spdlog::debug("done");
 
   // Clear Map (this erase MapPoints and KeyFrames)
   mpMap->clear();
@@ -1326,7 +1331,7 @@ void Tracking::Reset() {
 
   if(mpInitializer) {
     delete mpInitializer;
-    mpInitializer = static_cast<Initializer *>(NULL);
+    mpInitializer = nullptr;
   }
 
   mlRelativeFramePoses.clear();
@@ -1334,8 +1339,9 @@ void Tracking::Reset() {
   mlFrameTimes.clear();
   mlbLost.clear();
 
-  if(mpViewer)
+  if(mpViewer) {
     mpViewer->Release();
+  }
 }
 
 void Tracking::ChangeCalibration(const string &strSettingPath) {

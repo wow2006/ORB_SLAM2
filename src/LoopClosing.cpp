@@ -346,7 +346,7 @@ bool LoopClosing::ComputeSim3() {
 }
 
 void LoopClosing::CorrectLoop() {
-  cout << "Loop detected!" << endl;
+  spdlog::debug("Loop detected!");
 
   // Send a stop signal to Local Mapping
   // Avoid new keyframes are inserted while correcting the loop
@@ -564,7 +564,7 @@ void LoopClosing::ResetIfRequested() {
 }
 
 void LoopClosing::RunGlobalBundleAdjustment(unsigned long nLoopKF) {
-  cout << "Starting Global Bundle Adjustment" << endl;
+  spdlog::debug("Starting Global Bundle Adjustment");
 
   int idx = mnFullBAIdx;
   Optimizer::GlobalBundleAdjustemnt(mpMap, 10, &mbStopGBA, nLoopKF, false);
@@ -575,12 +575,13 @@ void LoopClosing::RunGlobalBundleAdjustment(unsigned long nLoopKF) {
   // We need to propagate the correction through the spanning tree
   {
     unique_lock<mutex> lock(mMutexGBA);
-    if(idx != mnFullBAIdx)
+    if(idx != mnFullBAIdx) {
       return;
+    }
 
     if(!mbStopGBA) {
-      cout << "Global Bundle Adjustment finished" << endl;
-      cout << "Updating map ..." << endl;
+      spdlog::debug("Global Bundle Adjustment finished");
+      spdlog::debug("Updating map ...");
       mpLocalMapper->RequestStop();
       // Wait until Local Mapping has effectively stopped
 
@@ -589,14 +590,14 @@ void LoopClosing::RunGlobalBundleAdjustment(unsigned long nLoopKF) {
       }
 
       // Get Map Mutex
-      unique_lock<mutex> lock(mpMap->mMutexMapUpdate);
+      std::unique_lock<std::mutex> lock(mpMap->mMutexMapUpdate);
 
       // Correct keyframes starting at map first keyframe
-      list<KeyFrame *> lpKFtoCheck(mpMap->mvpKeyFrameOrigins.begin(), mpMap->mvpKeyFrameOrigins.end());
+      std::list<KeyFrame *> lpKFtoCheck(mpMap->mvpKeyFrameOrigins.begin(), mpMap->mvpKeyFrameOrigins.end());
 
       while(!lpKFtoCheck.empty()) {
         KeyFrame *pKF = lpKFtoCheck.front();
-        const set<KeyFrame *> sChilds = pKF->GetChilds();
+        const std::set<KeyFrame *> sChilds = pKF->GetChilds();
         cv::Mat Twc = pKF->GetPoseInverse();
         for(set<KeyFrame *>::const_iterator sit = sChilds.begin(); sit != sChilds.end(); ++sit) {
           KeyFrame *pChild = *sit;
@@ -614,13 +615,14 @@ void LoopClosing::RunGlobalBundleAdjustment(unsigned long nLoopKF) {
       }
 
       // Correct MapPoints
-      const vector<MapPoint *> vpMPs = mpMap->GetAllMapPoints();
+      const std::vector<MapPoint *> vpMPs = mpMap->GetAllMapPoints();
 
       for(size_t i = 0; i < vpMPs.size(); i++) {
         MapPoint *pMP = vpMPs[i];
 
-        if(pMP->isBad())
+        if(pMP->isBad()) {
           continue;
+        }
 
         if(pMP->mnBAGlobalForKF == nLoopKF) {
           // If optimized by Global BA, just update
@@ -650,7 +652,7 @@ void LoopClosing::RunGlobalBundleAdjustment(unsigned long nLoopKF) {
 
       mpLocalMapper->Release();
 
-      cout << "Map updated!" << endl;
+      spdlog::debug("Map updated!");
     }
 
     mbFinishedGBA = true;

@@ -567,19 +567,21 @@ void PnPsolver::estimate_R_and_t(double R[3][3], double t[3]) {
 }
 
 void PnPsolver::print_pose(const double R[3][3], const double t[3]) {
-  cout << R[0][0] << " " << R[0][1] << " " << R[0][2] << " " << t[0] << endl;
-  cout << R[1][0] << " " << R[1][1] << " " << R[1][2] << " " << t[1] << endl;
-  cout << R[2][0] << " " << R[2][1] << " " << R[2][2] << " " << t[2] << endl;
+  spdlog::debug("{}, {}, {}, {}", R[0][0], R[0][1], R[0][2], t[0]);
+  spdlog::debug("{}, {}, {}, {}", R[1][0], R[1][1], R[1][2], t[1]);
+  spdlog::debug("{}, {}, {}, {}", R[2][0], R[2][1], R[2][2], t[2]);
 }
 
 void PnPsolver::solve_for_sign(void) {
   if(pcs[2] < 0.0) {
-    for(int i = 0; i < 4; i++)
-      for(int j = 0; j < 3; j++)
+    for(int i = 0; i < 4; ++i) {
+      for(int j = 0; j < 3; ++j) {
         ccs[i][j] = -ccs[i][j];
+      }
+    }
 
-    for(int i = 0; i < number_of_correspondences; i++) {
-      pcs[3 * i] = -pcs[3 * i];
+    for(int i = 0; i < number_of_correspondences; ++i) {
+      pcs[3 * i]     = -pcs[3 * i];
       pcs[3 * i + 1] = -pcs[3 * i + 1];
       pcs[3 * i + 2] = -pcs[3 * i + 2];
     }
@@ -805,7 +807,7 @@ void PnPsolver::qr_solve(CvMat *A, CvMat *b, CvMat *X) {
 
     if(eta == 0) {
       A1[k] = A2[k] = 0.0;
-      cerr << "God damnit, A is singular, this shouldn't happen." << endl;
+      spdlog::error("God damnit, A is singular, this shouldn't happen.");
       return;
     } else {
       double *ppAik = ppAkk, sum = 0.0, inv_eta = 1. / eta;
