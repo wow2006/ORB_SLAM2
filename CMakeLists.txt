@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 project(ORB_SLAM2 CXX)
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+include(options)
 
 # ==========================
 option(ENABLE_EXAMPLE "Build examples"       OFF)
@@ -78,6 +79,7 @@ target_link_libraries(
   Eigen3::Eigen
   ORB_SLAM2::g2o
   ORB_SLAM2::DBoW2
+  options::options
 )
 
 target_compile_definitions(
