@@ -59,8 +59,8 @@ using namespace std;
 namespace ORB_SLAM2 {
 
 PnPsolver::PnPsolver(const Frame &F, const vector<MapPoint *> &vpMapPointMatches) :
-    pws(0), us(0), alphas(0), pcs(0), maximum_number_of_correspondences(0), number_of_correspondences(0), mnInliersi(0),
-    mvpMapPointMatches(vpMapPointMatches),
+    pws(0), us(0), alphas(0), pcs(0), maximum_number_of_correspondences(0), number_of_correspondences(0),
+    mvpMapPointMatches(vpMapPointMatches), mnInliersi(0),
     mnIterations(0), mnBestInliers(0), N(0) {
   mvP2D.reserve(F.mvpMapPoints.size());
   mvSigma2.reserve(F.mvpMapPoints.size());

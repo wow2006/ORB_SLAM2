@@ -50,7 +50,7 @@ private:
   System      *mpSystem;
   FrameDrawer *mpFrameDrawer;
   MapDrawer   *mpMapDrawer;
-  Tracking    *mpTracker;
+  [[maybe_unused]] Tracking    *mpTracker;
 
   // 1/fps in ms
   double mT;

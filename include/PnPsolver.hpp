@@ -133,7 +133,7 @@ private:
   int number_of_correspondences = 0;
 
   double cws[4][3] = {}, ccs[4][3] = {};
-  double cws_determinant = 0;
+  [[maybe_unused]] double cws_determinant = 0;
 
   std::vector<MapPoint *> mvpMapPointMatches;
 
@@ -184,7 +184,7 @@ private:
   float mRansacEpsilon = 0;
 
   // RANSAC Threshold inlier/outlier. Max error e = dist(P1,T_12*P2)^2
-  float mRansacTh = 0;
+  [[maybe_unused]] float mRansacTh = 0;
 
   // RANSAC Minimun Set used at each iteration
   int mRansacMinSet = 0;

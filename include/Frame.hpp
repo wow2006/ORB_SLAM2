@@ -209,7 +209,6 @@ private:
   cv::Mat mtcw;
   cv::Mat mRwc;
   cv::Mat mOw;  //==mtwc
-
 };
 
 }  // namespace ORB_SLAM2
