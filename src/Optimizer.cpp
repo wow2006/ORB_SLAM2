@@ -101,7 +101,7 @@ void BundleAdjustment(const vector<KeyFrame *> &vpKFs,
 
     int nEdges = 0;
     //SET EDGES
-    for(map<KeyFrame *, size_t>::const_iterator mit = observations.begin(); mit != observations.end(); mit++) {
+    for(map<KeyFrame *, size_t>::const_iterator mit = observations.begin(); mit != observations.end(); ++mit) {
 
       KeyFrame *pKF = mit->first;
       if(pKF->isBad() || pKF->mnId > maxKFid)
@@ -429,9 +429,9 @@ void LocalBundleAdjustment(KeyFrame *pKF, bool *pbStopFlag, Map *pMap) {
 
   // Local MapPoints seen in Local KeyFrames
   list<MapPoint *> lLocalMapPoints;
-  for(list<KeyFrame *>::iterator lit = lLocalKeyFrames.begin(), lend = lLocalKeyFrames.end(); lit != lend; lit++) {
+  for(list<KeyFrame *>::iterator lit = lLocalKeyFrames.begin(), lend = lLocalKeyFrames.end(); lit != lend; ++lit) {
     vector<MapPoint *> vpMPs = (*lit)->GetMapPointMatches();
-    for(vector<MapPoint *>::iterator vit = vpMPs.begin(), vend = vpMPs.end(); vit != vend; vit++) {
+    for(vector<MapPoint *>::iterator vit = vpMPs.begin(), vend = vpMPs.end(); vit != vend; ++vit) {
       MapPoint *pMP = *vit;
       if(pMP)
         if(!pMP->isBad())
@@ -444,9 +444,9 @@ void LocalBundleAdjustment(KeyFrame *pKF, bool *pbStopFlag, Map *pMap) {
 
   // Fixed Keyframes. Keyframes that see Local MapPoints but that are not Local Keyframes
   list<KeyFrame *> lFixedCameras;
-  for(list<MapPoint *>::iterator lit = lLocalMapPoints.begin(), lend = lLocalMapPoints.end(); lit != lend; lit++) {
+  for(list<MapPoint *>::iterator lit = lLocalMapPoints.begin(), lend = lLocalMapPoints.end(); lit != lend; ++lit) {
     map<KeyFrame *, size_t> observations = (*lit)->GetObservations();
-    for(map<KeyFrame *, size_t>::iterator mit = observations.begin(), mend = observations.end(); mit != mend; mit++) {
+    for(map<KeyFrame *, size_t>::iterator mit = observations.begin(), mend = observations.end(); mit != mend; ++mit) {
       KeyFrame *pKFi = mit->first;
 
       if(pKFi->mnBALocalForKF != pKF->mnId && pKFi->mnBAFixedForKF != pKF->mnId) {
@@ -474,7 +474,7 @@ void LocalBundleAdjustment(KeyFrame *pKF, bool *pbStopFlag, Map *pMap) {
   unsigned long maxKFid = 0;
 
   // Set Local KeyFrame vertices
-  for(list<KeyFrame *>::iterator lit = lLocalKeyFrames.begin(), lend = lLocalKeyFrames.end(); lit != lend; lit++) {
+  for(list<KeyFrame *>::iterator lit = lLocalKeyFrames.begin(), lend = lLocalKeyFrames.end(); lit != lend; ++lit) {
     KeyFrame *pKFi = *lit;
     g2o::VertexSE3Expmap *vSE3 = new g2o::VertexSE3Expmap();
     vSE3->setEstimate(Converter::toSE3Quat(pKFi->GetPose()));
@@ -486,7 +486,7 @@ void LocalBundleAdjustment(KeyFrame *pKF, bool *pbStopFlag, Map *pMap) {
   }
 
   // Set Fixed KeyFrame vertices
-  for(list<KeyFrame *>::iterator lit = lFixedCameras.begin(), lend = lFixedCameras.end(); lit != lend; lit++) {
+  for(list<KeyFrame *>::iterator lit = lFixedCameras.begin(), lend = lFixedCameras.end(); lit != lend; ++lit) {
     KeyFrame *pKFi = *lit;
     g2o::VertexSE3Expmap *vSE3 = new g2o::VertexSE3Expmap();
     vSE3->setEstimate(Converter::toSE3Quat(pKFi->GetPose()));
@@ -521,7 +521,7 @@ void LocalBundleAdjustment(KeyFrame *pKF, bool *pbStopFlag, Map *pMap) {
   const float thHuberMono = sqrt(5.991);
   const float thHuberStereo = sqrt(7.815);
 
-  for(list<MapPoint *>::iterator lit = lLocalMapPoints.begin(), lend = lLocalMapPoints.end(); lit != lend; lit++) {
+  for(list<MapPoint *>::iterator lit = lLocalMapPoints.begin(), lend = lLocalMapPoints.end(); lit != lend; ++lit) {
     MapPoint *pMP = *lit;
     g2o::VertexSBAPointXYZ *vPoint = new g2o::VertexSBAPointXYZ();
     vPoint->setEstimate(Converter::toVector3d(pMP->GetWorldPos()));
@@ -533,7 +533,7 @@ void LocalBundleAdjustment(KeyFrame *pKF, bool *pbStopFlag, Map *pMap) {
     const map<KeyFrame *, size_t> observations = pMP->GetObservations();
 
     //Set edges
-    for(map<KeyFrame *, size_t>::const_iterator mit = observations.begin(), mend = observations.end(); mit != mend; mit++) {
+    for(map<KeyFrame *, size_t>::const_iterator mit = observations.begin(), mend = observations.end(); mit != mend; ++mit) {
       KeyFrame *pKFi = mit->first;
 
       if(!pKFi->isBad()) {
@@ -694,15 +694,15 @@ void LocalBundleAdjustment(KeyFrame *pKF, bool *pbStopFlag, Map *pMap) {
   // Recover optimized data
 
   //Keyframes
-  for(list<KeyFrame *>::iterator lit = lLocalKeyFrames.begin(), lend = lLocalKeyFrames.end(); lit != lend; lit++) {
-    KeyFrame *pKF = *lit;
-    g2o::VertexSE3Expmap *vSE3 = static_cast<g2o::VertexSE3Expmap *>(optimizer.vertex(pKF->mnId));
+  for(list<KeyFrame *>::iterator lit = lLocalKeyFrames.begin(), lend = lLocalKeyFrames.end(); lit != lend; ++lit) {
+    KeyFrame *pKeyFrame = *lit;
+    g2o::VertexSE3Expmap *vSE3 = static_cast<g2o::VertexSE3Expmap *>(optimizer.vertex(pKeyFrame->mnId));
     g2o::SE3Quat SE3quat = vSE3->estimate();
-    pKF->SetPose(Converter::toCvMat(SE3quat));
+    pKeyFrame->SetPose(Converter::toCvMat(SE3quat));
   }
 
   //Points
-  for(list<MapPoint *>::iterator lit = lLocalMapPoints.begin(), lend = lLocalMapPoints.end(); lit != lend; lit++) {
+  for(list<MapPoint *>::iterator lit = lLocalMapPoints.begin(), lend = lLocalMapPoints.end(); lit != lend; ++lit) {
     MapPoint *pMP = *lit;
     g2o::VertexSBAPointXYZ *vPoint = static_cast<g2o::VertexSBAPointXYZ *>(optimizer.vertex(pMP->mnId + maxKFid + 1));
     pMP->SetWorldPos(Converter::toCvMat(vPoint->estimate()));
@@ -777,14 +777,14 @@ void OptimizeEssentialGraph(Map *pMap,
   const Eigen::Matrix<double, 7, 7> matLambda = Eigen::Matrix<double, 7, 7>::Identity();
 
   // Set Loop edges
-  for(map<KeyFrame *, set<KeyFrame *> >::const_iterator mit = LoopConnections.begin(), mend = LoopConnections.end(); mit != mend; mit++) {
+  for(map<KeyFrame *, set<KeyFrame *> >::const_iterator mit = LoopConnections.begin(), mend = LoopConnections.end(); mit != mend; ++mit) {
     KeyFrame *pKF = mit->first;
     const long unsigned int nIDi = pKF->mnId;
     const set<KeyFrame *> &spConnections = mit->second;
     const g2o::Sim3 Siw = vScw[nIDi];
     const g2o::Sim3 Swi = Siw.inverse();
 
-    for(set<KeyFrame *>::const_iterator sit = spConnections.begin(), send = spConnections.end(); sit != send; sit++) {
+    for(set<KeyFrame *>::const_iterator sit = spConnections.begin(), send = spConnections.end(); sit != send; ++sit) {
       const long unsigned int nIDj = (*sit)->mnId;
       if((nIDi != pCurKF->mnId || nIDj != pLoopKF->mnId) && pKF->GetWeight(*sit) < minFeat)
         continue;
@@ -848,7 +848,7 @@ void OptimizeEssentialGraph(Map *pMap,
 
     // Loop edges
     const set<KeyFrame *> sLoopEdges = pKF->GetLoopEdges();
-    for(set<KeyFrame *>::const_iterator sit = sLoopEdges.begin(), send = sLoopEdges.end(); sit != send; sit++) {
+    for(set<KeyFrame *>::const_iterator sit = sLoopEdges.begin(), send = sLoopEdges.end(); sit != send; ++sit) {
       KeyFrame *pLKF = *sit;
       if(pLKF->mnId < pKF->mnId) {
         g2o::Sim3 Slw;
@@ -872,7 +872,7 @@ void OptimizeEssentialGraph(Map *pMap,
 
     // Covisibility graph edges
     const vector<KeyFrame *> vpConnectedKFs = pKF->GetCovisiblesByWeight(minFeat);
-    for(vector<KeyFrame *>::const_iterator vit = vpConnectedKFs.begin(); vit != vpConnectedKFs.end(); vit++) {
+    for(vector<KeyFrame *>::const_iterator vit = vpConnectedKFs.begin(); vit != vpConnectedKFs.end(); ++vit) {
       KeyFrame *pKFn = *vit;
       if(pKFn && pKFn != pParentKF && !pKF->hasChild(pKFn) && !sLoopEdges.count(pKFn)) {
         if(!pKFn->isBad() && pKFn->mnId < pKF->mnId) {
@@ -1009,8 +1009,9 @@ int OptimizeSim3(KeyFrame *pKF1, KeyFrame *pKF2, vector<MapPoint *> &vpMatches1,
   int nCorrespondences = 0;
 
   for(int i = 0; i < N; i++) {
-    if(!vpMatches1[i])
+    if(vpMatches1[i] == nullptr) {
       continue;
+    }
 
     MapPoint *pMP1 = vpMapPoints1[i];
     MapPoint *pMP2 = vpMatches1[i];
@@ -1037,10 +1038,12 @@ int OptimizeSim3(KeyFrame *pKF1, KeyFrame *pKF2, vector<MapPoint *> &vpMatches1,
         vPoint2->setId(id2);
         vPoint2->setFixed(true);
         optimizer.addVertex(vPoint2);
-      } else
+      } else {
         continue;
-    } else
+      }
+    } else {
       continue;
+    }
 
     nCorrespondences++;
 

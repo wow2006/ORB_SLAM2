@@ -80,9 +80,9 @@ private:
 
   double compute_pose(double R[3][3], double T[3]);
 
-  void relative_error(double &rot_err, double &transl_err, const double Rtrue[3][3], const double ttrue[3], const double Rest[3][3], const double test[3]);
+  [[maybe_unused]] void relative_error(double &rot_err, double &transl_err, const double Rtrue[3][3], const double ttrue[3], const double Rest[3][3], const double test[3]);
 
-  void print_pose(const double R[3][3], const double t[3]);
+  [[maybe_unused]] void print_pose(const double R[3][3], const double t[3]);
 
   double reprojection_error(const double R[3][3], const double t[3]);
 
@@ -126,14 +126,14 @@ private:
 
   void mat_to_quat(const double R[3][3], double q[4]);
 
-  double uc, vc, fu, fv;
+  double uc = 0, vc = 0, fu = 0, fv = 0;
 
-  double *pws, *us, *alphas, *pcs;
-  int maximum_number_of_correspondences;
-  int number_of_correspondences;
+  double *pws = nullptr, *us = nullptr, *alphas = nullptr, *pcs = nullptr;
+  int maximum_number_of_correspondences = 0;
+  int number_of_correspondences = 0;
 
-  double cws[4][3], ccs[4][3];
-  double cws_determinant;
+  double cws[4][3] = {}, ccs[4][3] = {};
+  double cws_determinant = 0;
 
   std::vector<MapPoint *> mvpMapPointMatches;
 
@@ -148,46 +148,46 @@ private:
   std::vector<size_t> mvKeyPointIndices;
 
   // Current Estimation
-  double mRi[3][3];
-  double mti[3];
+  double mRi[3][3] = {};
+  double mti[3] = {};
   cv::Mat mTcwi;
   std::vector<bool> mvbInliersi;
-  int mnInliersi;
+  int mnInliersi = 0;
 
   // Current Ransac State
-  int mnIterations;
+  int mnIterations = 0;
   std::vector<bool> mvbBestInliers;
-  int mnBestInliers;
+  int mnBestInliers = 0;
   cv::Mat mBestTcw;
 
   // Refined
   cv::Mat mRefinedTcw;
   std::vector<bool> mvbRefinedInliers;
-  int mnRefinedInliers;
+  int mnRefinedInliers = 0;
 
   // Number of Correspondences
-  int N;
+  int N = 0;
 
   // Indices for random selection [0 .. N-1]
   std::vector<size_t> mvAllIndices;
 
   // RANSAC probability
-  double mRansacProb;
+  double mRansacProb = 0;
 
   // RANSAC min inliers
-  int mRansacMinInliers;
+  int mRansacMinInliers = 0;
 
   // RANSAC max iterations
-  int mRansacMaxIts;
+  int mRansacMaxIts = 0;
 
   // RANSAC expected inliers/total ratio
-  float mRansacEpsilon;
+  float mRansacEpsilon = 0;
 
   // RANSAC Threshold inlier/outlier. Max error e = dist(P1,T_12*P2)^2
-  float mRansacTh;
+  float mRansacTh = 0;
 
   // RANSAC Minimun Set used at each iteration
-  int mRansacMinSet;
+  int mRansacMinSet = 0;
 
   // Max square error associated with scale level. Max error = th*th*sigma(level)*sigma(level)
   std::vector<float> mvMaxError;

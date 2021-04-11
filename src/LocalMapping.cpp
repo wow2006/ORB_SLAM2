@@ -171,7 +171,7 @@ void LocalMapping::MapPointCulling() {
     } else if(((int)nCurrentKFid - (int)pMP->mnFirstKFid) >= 3)
       lit = mlpRecentAddedMapPoints.erase(lit);
     else
-      lit++;
+      ++lit;
   }
 }
 
@@ -411,7 +411,7 @@ void LocalMapping::SearchInNeighbors() {
     nn = 20;
   const vector<KeyFrame *> vpNeighKFs = mpCurrentKeyFrame->GetBestCovisibilityKeyFrames(nn);
   vector<KeyFrame *> vpTargetKFs;
-  for(vector<KeyFrame *>::const_iterator vit = vpNeighKFs.begin(), vend = vpNeighKFs.end(); vit != vend; vit++) {
+  for(vector<KeyFrame *>::const_iterator vit = vpNeighKFs.begin(), vend = vpNeighKFs.end(); vit != vend; ++vit) {
     KeyFrame *pKFi = *vit;
     if(pKFi->isBad() || pKFi->mnFuseTargetForKF == mpCurrentKeyFrame->mnId)
       continue;
@@ -420,7 +420,7 @@ void LocalMapping::SearchInNeighbors() {
 
     // Extend to some second neighbors
     const vector<KeyFrame *> vpSecondNeighKFs = pKFi->GetBestCovisibilityKeyFrames(5);
-    for(vector<KeyFrame *>::const_iterator vit2 = vpSecondNeighKFs.begin(), vend2 = vpSecondNeighKFs.end(); vit2 != vend2; vit2++) {
+    for(vector<KeyFrame *>::const_iterator vit2 = vpSecondNeighKFs.begin(), vend2 = vpSecondNeighKFs.end(); vit2 != vend2; ++vit2) {
       KeyFrame *pKFi2 = *vit2;
       if(pKFi2->isBad() || pKFi2->mnFuseTargetForKF == mpCurrentKeyFrame->mnId || pKFi2->mnId == mpCurrentKeyFrame->mnId)
         continue;
@@ -431,7 +431,7 @@ void LocalMapping::SearchInNeighbors() {
   // Search matches by projection from current KF in target KFs
   ORBmatcher matcher;
   vector<MapPoint *> vpMapPointMatches = mpCurrentKeyFrame->GetMapPointMatches();
-  for(vector<KeyFrame *>::iterator vit = vpTargetKFs.begin(), vend = vpTargetKFs.end(); vit != vend; vit++) {
+  for(vector<KeyFrame *>::iterator vit = vpTargetKFs.begin(), vend = vpTargetKFs.end(); vit != vend; ++vit) {
     KeyFrame *pKFi = *vit;
 
     matcher.Fuse(pKFi, vpMapPointMatches);
@@ -441,12 +441,12 @@ void LocalMapping::SearchInNeighbors() {
   vector<MapPoint *> vpFuseCandidates;
   vpFuseCandidates.reserve(vpTargetKFs.size() * vpMapPointMatches.size());
 
-  for(vector<KeyFrame *>::iterator vitKF = vpTargetKFs.begin(), vendKF = vpTargetKFs.end(); vitKF != vendKF; vitKF++) {
+  for(vector<KeyFrame *>::iterator vitKF = vpTargetKFs.begin(), vendKF = vpTargetKFs.end(); vitKF != vendKF; ++vitKF) {
     KeyFrame *pKFi = *vitKF;
 
     vector<MapPoint *> vpMapPointsKFi = pKFi->GetMapPointMatches();
 
-    for(vector<MapPoint *>::iterator vitMP = vpMapPointsKFi.begin(), vendMP = vpMapPointsKFi.end(); vitMP != vendMP; vitMP++) {
+    for(vector<MapPoint *>::iterator vitMP = vpMapPointsKFi.begin(), vendMP = vpMapPointsKFi.end(); vitMP != vendMP; ++vitMP) {
       MapPoint *pMP = *vitMP;
       if(!pMP)
         continue;
@@ -527,7 +527,7 @@ void LocalMapping::Release() {
     return;
   mbStopped = false;
   mbStopRequested = false;
-  for(list<KeyFrame *>::iterator lit = mlNewKeyFrames.begin(), lend = mlNewKeyFrames.end(); lit != lend; lit++)
+  for(list<KeyFrame *>::iterator lit = mlNewKeyFrames.begin(), lend = mlNewKeyFrames.end(); lit != lend; ++lit)
     delete *lit;
   mlNewKeyFrames.clear();
 
@@ -564,7 +564,7 @@ void LocalMapping::KeyFrameCulling() {
   // We only consider close stereo points
   vector<KeyFrame *> vpLocalKeyFrames = mpCurrentKeyFrame->GetVectorCovisibleKeyFrames();
 
-  for(vector<KeyFrame *>::iterator vit = vpLocalKeyFrames.begin(), vend = vpLocalKeyFrames.end(); vit != vend; vit++) {
+  for(vector<KeyFrame *>::iterator vit = vpLocalKeyFrames.begin(), vend = vpLocalKeyFrames.end(); vit != vend; ++vit) {
     KeyFrame *pKF = *vit;
     if(pKF->mnId == 0)
       continue;
@@ -588,7 +588,7 @@ void LocalMapping::KeyFrameCulling() {
             const int &scaleLevel = pKF->mvKeysUn[i].octave;
             const map<KeyFrame *, size_t> observations = pMP->GetObservations();
             int nObs = 0;
-            for(map<KeyFrame *, size_t>::const_iterator mit = observations.begin(), mend = observations.end(); mit != mend; mit++) {
+            for(map<KeyFrame *, size_t>::const_iterator mit = observations.begin(), mend = observations.end(); mit != mend; ++mit) {
               KeyFrame *pKFi = mit->first;
               if(pKFi == pKF)
                 continue;

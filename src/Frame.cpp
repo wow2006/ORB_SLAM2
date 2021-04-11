@@ -554,7 +554,7 @@ void Frame::ComputeStereoMatches() {
       IL.convertTo(IL, CV_32F);
       IL = IL - IL.at<float>(w, w) * cv::Mat::ones(IL.rows, IL.cols, CV_32F);
 
-      int bestDist = INT_MAX;
+      int bestDist2 = INT_MAX;
       int bestincR = 0;
       const int L = 5;
       vector<float> vDists;
@@ -572,9 +572,9 @@ void Frame::ComputeStereoMatches() {
         IR = IR - IR.at<float>(w, w) * cv::Mat::ones(IR.rows, IR.cols, CV_32F);
 
         float dist = cv::norm(IL, IR, cv::NORM_L1);
-        if(dist < bestDist) {
-          bestDist = dist;
-          bestincR = incR;
+        if(dist < bestDist2) {
+          bestDist2 = dist;
+          bestincR  = incR;
         }
 
         vDists[L + incR] = dist;
@@ -605,7 +605,7 @@ void Frame::ComputeStereoMatches() {
         }
         mvDepth[iL] = mbf / disparity;
         mvuRight[iL] = bestuR;
-        vDistIdx.push_back(pair<int, int>(bestDist, iL));
+        vDistIdx.push_back(pair<int, int>(bestDist2, iL));
       }
     }
   }

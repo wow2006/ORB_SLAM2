@@ -547,11 +547,11 @@ vector<cv::KeyPoint> ORBextractor::DistributeOctTree(const vector<cv::KeyPoint> 
   while(lit != lNodes.end()) {
     if(lit->vKeys.size() == 1) {
       lit->bNoMore = true;
-      lit++;
+      ++lit;
     } else if(lit->vKeys.empty())
       lit = lNodes.erase(lit);
     else
-      lit++;
+      ++lit;
   }
 
   bool bFinish = false;
@@ -575,7 +575,7 @@ vector<cv::KeyPoint> ORBextractor::DistributeOctTree(const vector<cv::KeyPoint> 
     while(lit != lNodes.end()) {
       if(lit->bNoMore) {
         // If node only contains one point do not subdivide and continue
-        lit++;
+        ++lit;
         continue;
       } else {
         // If more than one point, subdivide
@@ -684,9 +684,9 @@ vector<cv::KeyPoint> ORBextractor::DistributeOctTree(const vector<cv::KeyPoint> 
   // Retain the best point in each node
   vector<cv::KeyPoint> vResultKeys;
   vResultKeys.reserve(nfeatures);
-  for(list<ExtractorNode>::iterator lit = lNodes.begin(); lit != lNodes.end(); lit++) {
-    vector<cv::KeyPoint> &vNodeKeys = lit->vKeys;
-    cv::KeyPoint *pKP = &vNodeKeys[0];
+  for(const auto& vNodes : lNodes) {
+    const std::vector<cv::KeyPoint> &vNodeKeys = vNodes.vKeys;
+    const cv::KeyPoint *pKP = &vNodeKeys[0];
     float maxResponse = pKP->response;
 
     for(size_t k = 1; k < vNodeKeys.size(); k++) {
@@ -749,7 +749,7 @@ void ORBextractor::ComputeKeyPointsOctTree(vector<vector<KeyPoint> > &allKeypoin
         }
 
         if(!vKeysCell.empty()) {
-          for(vector<cv::KeyPoint>::iterator vit = vKeysCell.begin(); vit != vKeysCell.end(); vit++) {
+          for(vector<cv::KeyPoint>::iterator vit = vKeysCell.begin(); vit != vKeysCell.end(); ++vit) {
             (*vit).pt.x += j * wCell;
             (*vit).pt.y += i * hCell;
             vToDistributeKeys.push_back(*vit);

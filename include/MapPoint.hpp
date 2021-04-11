@@ -25,7 +25,7 @@ class Map;
 class Frame;
 class KeyFrame;
 
-class MapPoint {
+class MapPoint final {
 public:
   MapPoint(const cv::Mat &Pos, KeyFrame *pRefKF, Map *pMap);
 
@@ -82,32 +82,32 @@ public:
   int PredictScale(const float &currentDist, Frame *pF);
 
 public:
-  long unsigned int mnId;
+  long unsigned int mnId = 0;
   static long unsigned int nNextId;
-  long int mnFirstKFid;
-  long int mnFirstFrame;
-  int nObs;
+  long int mnFirstKFid = 0;
+  long int mnFirstFrame = 0;
+  int nObs = 0;
 
   // Variables used by the tracking
-  float mTrackProjX;
-  float mTrackProjY;
-  float mTrackProjXR;
-  bool mbTrackInView;
-  int mnTrackScaleLevel;
-  float mTrackViewCos;
-  long unsigned int mnTrackReferenceForFrame;
-  long unsigned int mnLastFrameSeen;
+  float mTrackProjX = 0;
+  float mTrackProjY = 0;
+  float mTrackProjXR = 0;
+  bool mbTrackInView = 0;
+  int mnTrackScaleLevel = 0;
+  float mTrackViewCos = 0;
+  long unsigned int mnTrackReferenceForFrame = 0;
+  long unsigned int mnLastFrameSeen = 0;
 
   // Variables used by local mapping
-  long unsigned int mnBALocalForKF;
-  long unsigned int mnFuseCandidateForKF;
+  long unsigned int mnBALocalForKF = 0;
+  long unsigned int mnFuseCandidateForKF = 0;
 
   // Variables used by loop closing
-  long unsigned int mnLoopPointForKF;
-  long unsigned int mnCorrectedByKF;
-  long unsigned int mnCorrectedReference;
+  long unsigned int mnLoopPointForKF = 0;
+  long unsigned int mnCorrectedByKF = 0;
+  long unsigned int mnCorrectedReference = 0;
   cv::Mat mPosGBA;
-  long unsigned int mnBAGlobalForKF;
+  long unsigned int mnBAGlobalForKF = 0;
 
   static std::mutex mGlobalMutex;
 
@@ -125,21 +125,21 @@ protected:
   cv::Mat mDescriptor;
 
   // Reference KeyFrame
-  KeyFrame *mpRefKF;
+  KeyFrame *mpRefKF = nullptr;
 
   // Tracking counters
-  int mnVisible;
-  int mnFound;
+  int mnVisible = 0;
+  int mnFound = 0;
 
   // Bad flag (we do not currently erase MapPoint from memory)
-  bool mbBad;
-  MapPoint *mpReplaced;
+  bool mbBad = false;
+  MapPoint *mpReplaced = nullptr;
 
   // Scale invariance distances
-  float mfMinDistance;
-  float mfMaxDistance;
+  float mfMinDistance = 0;
+  float mfMaxDistance = 0;
 
-  Map *mpMap;
+  Map *mpMap = nullptr;
 
   std::mutex mMutexPos;
   std::mutex mMutexFeatures;

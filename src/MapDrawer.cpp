@@ -62,7 +62,7 @@ void MapDrawer::DrawMapPoints() {
   glBegin(GL_POINTS);
   glColor3f(1.0, 0.0, 0.0);
 
-  for(set<MapPoint *>::iterator sit = spRefMPs.begin(), send = spRefMPs.end(); sit != send; sit++) {
+  for(set<MapPoint *>::iterator sit = spRefMPs.begin(), send = spRefMPs.end(); sit != send; ++sit) {
     if((*sit)->isBad())
       continue;
     cv::Mat pos = (*sit)->GetWorldPos();
@@ -127,7 +127,7 @@ void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph) {
       const vector<KeyFrame *> vCovKFs = vpKFs[i]->GetCovisiblesByWeight(100);
       cv::Mat Ow = vpKFs[i]->GetCameraCenter();
       if(!vCovKFs.empty()) {
-        for(vector<KeyFrame *>::const_iterator vit = vCovKFs.begin(), vend = vCovKFs.end(); vit != vend; vit++) {
+        for(vector<KeyFrame *>::const_iterator vit = vCovKFs.begin(), vend = vCovKFs.end(); vit != vend; ++vit) {
           if((*vit)->mnId < vpKFs[i]->mnId)
             continue;
           cv::Mat Ow2 = (*vit)->GetCameraCenter();
@@ -146,7 +146,7 @@ void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph) {
 
       // Loops
       set<KeyFrame *> sLoopKFs = vpKFs[i]->GetLoopEdges();
-      for(set<KeyFrame *>::iterator sit = sLoopKFs.begin(), send = sLoopKFs.end(); sit != send; sit++) {
+      for(set<KeyFrame *>::iterator sit = sLoopKFs.begin(), send = sLoopKFs.end(); sit != send; ++sit) {
         if((*sit)->mnId < vpKFs[i]->mnId)
           continue;
         cv::Mat Owl = (*sit)->GetCameraCenter();

@@ -29,7 +29,7 @@ class Initializer final {
 
 public:
   // Fix the reference frame
-  Initializer(const Frame &ReferenceFrame, float sigma = 1.0, int iterations = 200);
+  explicit Initializer(const Frame &ReferenceFrame, float sigma = 1.0, int iterations = 200);
 
   // Computes in parallel a fundamental matrix and a homography
   // Selects a model and tries to recover the motion and the structure from motion
@@ -42,9 +42,11 @@ public:
 
 private:
   void FindHomography(std::vector<bool> &vbMatchesInliers, float &score, cv::Mat &H21);
+
   void FindFundamental(std::vector<bool> &vbInliers, float &score, cv::Mat &F21);
 
   cv::Mat ComputeH21(const std::vector<cv::Point2f> &vP1, const std::vector<cv::Point2f> &vP2);
+
   cv::Mat ComputeF21(const std::vector<cv::Point2f> &vP1, const std::vector<cv::Point2f> &vP2);
 
   float CheckHomography(const cv::Mat &H21, const cv::Mat &H12, std::vector<bool> &vbMatchesInliers, float sigma);

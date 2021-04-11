@@ -127,7 +127,7 @@ void KeyFrame::UpdateBestCovisibles() {
   unique_lock<mutex> lock(mMutexConnections);
   vector<pair<int, KeyFrame *> > vPairs;
   vPairs.reserve(mConnectedKeyFrameWeights.size());
-  for(map<KeyFrame *, int>::iterator mit = mConnectedKeyFrameWeights.begin(), mend = mConnectedKeyFrameWeights.end(); mit != mend; mit++)
+  for(map<KeyFrame *, int>::iterator mit = mConnectedKeyFrameWeights.begin(), mend = mConnectedKeyFrameWeights.end(); mit != mend; ++mit)
     vPairs.push_back(make_pair(mit->second, mit->first));
 
   sort(vPairs.begin(), vPairs.end());
@@ -145,7 +145,7 @@ void KeyFrame::UpdateBestCovisibles() {
 set<KeyFrame *> KeyFrame::GetConnectedKeyFrames() {
   unique_lock<mutex> lock(mMutexConnections);
   set<KeyFrame *> s;
-  for(map<KeyFrame *, int>::iterator mit = mConnectedKeyFrameWeights.begin(); mit != mConnectedKeyFrameWeights.end(); mit++)
+  for(map<KeyFrame *, int>::iterator mit = mConnectedKeyFrameWeights.begin(); mit != mConnectedKeyFrameWeights.end(); ++mit)
     s.insert(mit->first);
   return s;
 }
@@ -260,7 +260,7 @@ void KeyFrame::UpdateConnections() {
 
   //For all map points in keyframe check in which other keyframes are they seen
   //Increase counter for those keyframes
-  for(vector<MapPoint *>::iterator vit = vpMP.begin(), vend = vpMP.end(); vit != vend; vit++) {
+  for(vector<MapPoint *>::iterator vit = vpMP.begin(), vend = vpMP.end(); vit != vend; ++vit) {
     MapPoint *pMP = *vit;
 
     if(!pMP)
@@ -271,7 +271,7 @@ void KeyFrame::UpdateConnections() {
 
     map<KeyFrame *, size_t> observations = pMP->GetObservations();
 
-    for(map<KeyFrame *, size_t>::iterator mit = observations.begin(), mend = observations.end(); mit != mend; mit++) {
+    for(map<KeyFrame *, size_t>::iterator mit = observations.begin(), mend = observations.end(); mit != mend; ++mit) {
       if(mit->first->mnId == mnId)
         continue;
       KFcounter[mit->first]++;
@@ -290,7 +290,7 @@ void KeyFrame::UpdateConnections() {
 
   vector<pair<int, KeyFrame *> > vPairs;
   vPairs.reserve(KFcounter.size());
-  for(map<KeyFrame *, int>::iterator mit = KFcounter.begin(), mend = KFcounter.end(); mit != mend; mit++) {
+  for(map<KeyFrame *, int>::iterator mit = KFcounter.begin(), mend = KFcounter.end(); mit != mend; ++mit) {
     if(mit->second > nmax) {
       nmax = mit->second;
       pKFmax = mit->first;
@@ -401,7 +401,7 @@ void KeyFrame::SetBadFlag() {
     }
   }
 
-  for(map<KeyFrame *, int>::iterator mit = mConnectedKeyFrameWeights.begin(), mend = mConnectedKeyFrameWeights.end(); mit != mend; mit++)
+  for(map<KeyFrame *, int>::iterator mit = mConnectedKeyFrameWeights.begin(), mend = mConnectedKeyFrameWeights.end(); mit != mend; ++mit)
     mit->first->EraseConnection(this);
 
   for(size_t i = 0; i < mvpMapPoints.size(); i++)
@@ -427,7 +427,7 @@ void KeyFrame::SetBadFlag() {
       KeyFrame *pC;
       KeyFrame *pP;
 
-      for(set<KeyFrame *>::iterator sit = mspChildrens.begin(), send = mspChildrens.end(); sit != send; sit++) {
+      for(set<KeyFrame *>::iterator sit = mspChildrens.begin(), send = mspChildrens.end(); sit != send; ++sit) {
         KeyFrame *pKF = *sit;
         if(pKF->isBad())
           continue;
@@ -435,7 +435,7 @@ void KeyFrame::SetBadFlag() {
         // Check if a parent candidate is connected to the keyframe
         vector<KeyFrame *> vpConnected = pKF->GetVectorCovisibleKeyFrames();
         for(size_t i = 0, iend = vpConnected.size(); i < iend; i++) {
-          for(set<KeyFrame *>::iterator spcit = sParentCandidates.begin(), spcend = sParentCandidates.end(); spcit != spcend; spcit++) {
+          for(set<KeyFrame *>::iterator spcit = sParentCandidates.begin(), spcend = sParentCandidates.end(); spcit != spcend; ++spcit) {
             if(vpConnected[i]->mnId == (*spcit)->mnId) {
               int w = pKF->GetWeight(vpConnected[i]);
               if(w > max) {
@@ -459,7 +459,7 @@ void KeyFrame::SetBadFlag() {
 
     // If a children has no covisibility links with any parent candidate, assign to the original parent of this KF
     if(!mspChildrens.empty())
-      for(set<KeyFrame *>::iterator sit = mspChildrens.begin(); sit != mspChildrens.end(); sit++) {
+      for(set<KeyFrame *>::iterator sit = mspChildrens.begin(); sit != mspChildrens.end(); ++sit) {
         (*sit)->ChangeParent(mpParent);
       }
 
@@ -553,7 +553,7 @@ float KeyFrame::ComputeSceneMedianDepth(const int q) {
   {
     unique_lock<mutex> lock(mMutexFeatures);
     unique_lock<mutex> lock2(mMutexPose);
-    vpMapPoints = mvpMapPoints;
+    //vpMapPoints = mvpMapPoints;
     Tcw_ = Tcw.clone();
   }
 

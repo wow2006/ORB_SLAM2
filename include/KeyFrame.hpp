@@ -105,7 +105,7 @@ public:
   // The following variables are accesed from only 1 thread or never change (no mutex needed).
 public:
   static long unsigned int nNextId;
-  long unsigned int mnId;
+  long unsigned int mnId = 0;
   const long unsigned int mnFrameId;
 
   const double mTimeStamp;
@@ -117,25 +117,25 @@ public:
   const float mfGridElementHeightInv;
 
   // Variables used by the tracking
-  long unsigned int mnTrackReferenceForFrame;
-  long unsigned int mnFuseTargetForKF;
+  long unsigned int mnTrackReferenceForFrame = 0;
+  long unsigned int mnFuseTargetForKF = 0;
 
   // Variables used by the local mapping
-  long unsigned int mnBALocalForKF;
-  long unsigned int mnBAFixedForKF;
+  long unsigned int mnBALocalForKF = 0;
+  long unsigned int mnBAFixedForKF = 0;
 
   // Variables used by the keyframe database
-  long unsigned int mnLoopQuery;
-  int mnLoopWords;
-  float mLoopScore;
-  long unsigned int mnRelocQuery;
-  int mnRelocWords;
-  float mRelocScore;
+  long unsigned int mnLoopQuery = 0;
+  int mnLoopWords = 0;
+  float mLoopScore = 0;
+  long unsigned int mnRelocQuery = 0;
+  int mnRelocWords = 0;
+  float mRelocScore = 0;
 
   // Variables used by loop closing
   cv::Mat mTcwGBA;
   cv::Mat mTcwBefGBA;
-  long unsigned int mnBAGlobalForKF;
+  long unsigned int mnBAGlobalForKF = 0;
 
   // Calibration parameters
   const float fx, fy, cx, cy, invfx, invfy, mbf, mb, mThDepth;
@@ -185,8 +185,8 @@ protected:
   std::vector<MapPoint *> mvpMapPoints;
 
   // BoW
-  KeyFrameDatabase *mpKeyFrameDB;
-  ORBVocabulary *mpORBvocabulary;
+  KeyFrameDatabase *mpKeyFrameDB = nullptr;
+  ORBVocabulary *mpORBvocabulary = nullptr;
 
   // Grid over the image to speed up feature matching
   std::vector<std::vector<std::vector<size_t> > > mGrid;
@@ -196,19 +196,19 @@ protected:
   std::vector<int> mvOrderedWeights;
 
   // Spanning Tree and Loop Edges
-  bool mbFirstConnection;
-  KeyFrame *mpParent;
+  bool mbFirstConnection = false;
+  KeyFrame *mpParent = nullptr;
   std::set<KeyFrame *> mspChildrens;
   std::set<KeyFrame *> mspLoopEdges;
 
   // Bad flags
-  bool mbNotErase;
-  bool mbToBeErased;
-  bool mbBad;
+  bool mbNotErase = false;
+  bool mbToBeErased = false;
+  bool mbBad  = false;
 
-  float mHalfBaseline;  // Only for visualization
+  float mHalfBaseline = 0;  // Only for visualization
 
-  Map *mpMap;
+  Map *mpMap = nullptr;
 
   std::mutex mMutexPose;
   std::mutex mMutexConnections;

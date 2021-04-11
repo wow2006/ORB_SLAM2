@@ -381,7 +381,7 @@ void Tracking::Track() {
       }
 
       // Delete temporal MapPoints
-      for(list<MapPoint *>::iterator lit = mlpTemporalPoints.begin(), lend = mlpTemporalPoints.end(); lit != lend; lit++) {
+      for(list<MapPoint *>::iterator lit = mlpTemporalPoints.begin(), lend = mlpTemporalPoints.end(); lit != lend; ++lit) {
         MapPoint *pMP = *lit;
         delete pMP;
       }
@@ -993,7 +993,7 @@ void Tracking::CreateNewKeyFrame() {
 
 void Tracking::SearchLocalPoints() {
   // Do not search map points already matched
-  for(vector<MapPoint *>::iterator vit = mCurrentFrame.mvpMapPoints.begin(), vend = mCurrentFrame.mvpMapPoints.end(); vit != vend; vit++) {
+  for(vector<MapPoint *>::iterator vit = mCurrentFrame.mvpMapPoints.begin(), vend = mCurrentFrame.mvpMapPoints.end(); vit != vend; ++vit) {
     MapPoint *pMP = *vit;
     if(pMP) {
       if(pMP->isBad()) {
@@ -1009,7 +1009,7 @@ void Tracking::SearchLocalPoints() {
   int nToMatch = 0;
 
   // Project points in frame and check its visibility
-  for(vector<MapPoint *>::iterator vit = mvpLocalMapPoints.begin(), vend = mvpLocalMapPoints.end(); vit != vend; vit++) {
+  for(vector<MapPoint *>::iterator vit = mvpLocalMapPoints.begin(), vend = mvpLocalMapPoints.end(); vit != vend; ++vit) {
     MapPoint *pMP = *vit;
     if(pMP->mnLastFrameSeen == mCurrentFrame.mnId)
       continue;
@@ -1046,11 +1046,11 @@ void Tracking::UpdateLocalMap() {
 void Tracking::UpdateLocalPoints() {
   mvpLocalMapPoints.clear();
 
-  for(vector<KeyFrame *>::const_iterator itKF = mvpLocalKeyFrames.begin(), itEndKF = mvpLocalKeyFrames.end(); itKF != itEndKF; itKF++) {
+  for(vector<KeyFrame *>::const_iterator itKF = mvpLocalKeyFrames.begin(), itEndKF = mvpLocalKeyFrames.end(); itKF != itEndKF; ++itKF) {
     KeyFrame *pKF = *itKF;
     const vector<MapPoint *> vpMPs = pKF->GetMapPointMatches();
 
-    for(vector<MapPoint *>::const_iterator itMP = vpMPs.begin(), itEndMP = vpMPs.end(); itMP != itEndMP; itMP++) {
+    for(vector<MapPoint *>::const_iterator itMP = vpMPs.begin(), itEndMP = vpMPs.end(); itMP != itEndMP; ++itMP) {
       MapPoint *pMP = *itMP;
       if(!pMP)
         continue;
@@ -1072,8 +1072,8 @@ void Tracking::UpdateLocalKeyFrames() {
       MapPoint *pMP = mCurrentFrame.mvpMapPoints[i];
       if(!pMP->isBad()) {
         const map<KeyFrame *, size_t> observations = pMP->GetObservations();
-        for(map<KeyFrame *, size_t>::const_iterator it = observations.begin(), itend = observations.end(); it != itend; it++)
-          keyframeCounter[it->first]++;
+        for(map<KeyFrame *, size_t>::const_iterator it = observations.begin(), itend = observations.end(); it != itend; ++it)
+          ++keyframeCounter[it->first];
       } else {
         mCurrentFrame.mvpMapPoints[i] = NULL;
       }
@@ -1090,7 +1090,7 @@ void Tracking::UpdateLocalKeyFrames() {
   mvpLocalKeyFrames.reserve(3 * keyframeCounter.size());
 
   // All keyframes that observe a map point are included in the local map. Also check which keyframe shares most points
-  for(map<KeyFrame *, int>::const_iterator it = keyframeCounter.begin(), itEnd = keyframeCounter.end(); it != itEnd; it++) {
+  for(map<KeyFrame *, int>::const_iterator it = keyframeCounter.begin(), itEnd = keyframeCounter.end(); it != itEnd; ++it) {
     KeyFrame *pKF = it->first;
 
     if(pKF->isBad())
@@ -1106,7 +1106,7 @@ void Tracking::UpdateLocalKeyFrames() {
   }
 
   // Include also some not-already-included keyframes that are neighbors to already-included keyframes
-  for(vector<KeyFrame *>::const_iterator itKF = mvpLocalKeyFrames.begin(), itEndKF = mvpLocalKeyFrames.end(); itKF != itEndKF; itKF++) {
+  for(vector<KeyFrame *>::const_iterator itKF = mvpLocalKeyFrames.begin(), itEndKF = mvpLocalKeyFrames.end(); itKF != itEndKF; ++itKF) {
     // Limit the number of keyframes
     if(mvpLocalKeyFrames.size() > 80)
       break;
@@ -1115,7 +1115,7 @@ void Tracking::UpdateLocalKeyFrames() {
 
     const vector<KeyFrame *> vNeighs = pKF->GetBestCovisibilityKeyFrames(10);
 
-    for(vector<KeyFrame *>::const_iterator itNeighKF = vNeighs.begin(), itEndNeighKF = vNeighs.end(); itNeighKF != itEndNeighKF; itNeighKF++) {
+    for(vector<KeyFrame *>::const_iterator itNeighKF = vNeighs.begin(), itEndNeighKF = vNeighs.end(); itNeighKF != itEndNeighKF; ++itNeighKF) {
       KeyFrame *pNeighKF = *itNeighKF;
       if(!pNeighKF->isBad()) {
         if(pNeighKF->mnTrackReferenceForFrame != mCurrentFrame.mnId) {
@@ -1127,7 +1127,7 @@ void Tracking::UpdateLocalKeyFrames() {
     }
 
     const set<KeyFrame *> spChilds = pKF->GetChilds();
-    for(set<KeyFrame *>::const_iterator sit = spChilds.begin(), send = spChilds.end(); sit != send; sit++) {
+    for(set<KeyFrame *>::const_iterator sit = spChilds.begin(), send = spChilds.end(); sit != send; ++sit) {
       KeyFrame *pChildKF = *sit;
       if(!pChildKF->isBad()) {
         if(pChildKF->mnTrackReferenceForFrame != mCurrentFrame.mnId) {
