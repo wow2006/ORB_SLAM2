@@ -40,6 +40,8 @@ public:
   // Copy constructor.
   Frame(const Frame &frame);
 
+  const Frame& operator=(const Frame &frame);
+
   // Constructor for stereo cameras.
   Frame(const cv::Mat &imLeft,
         const cv::Mat &imRight,
