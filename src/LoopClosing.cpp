@@ -36,7 +36,7 @@ namespace ORB_SLAM2 {
 
 LoopClosing::LoopClosing(Map *pMap, KeyFrameDatabase *pDB, ORBVocabulary *pVoc, const bool bFixScale) :
     mbResetRequested(false), mbFinishRequested(false), mbFinished(true), mpMap(pMap), mpKeyFrameDB(pDB), mpORBVocabulary(pVoc),
-    mpMatchedKF(NULL), mLastLoopKFid(0), mbRunningGBA(false), mbFinishedGBA(true), mbStopGBA(false), mpThreadGBA(NULL),
+    mpMatchedKF(nullptr), mLastLoopKFid(0), mbRunningGBA(false), mbFinishedGBA(true), mbStopGBA(false), mpThreadGBA(nullptr),
     mbFixScale(bFixScale), mnFullBAIdx(0) {
   mnCovisibilityConsistencyTh = 3;
 }
@@ -188,12 +188,8 @@ bool LoopClosing::DetectLoop() {
   if(mvpEnoughConsistentCandidates.empty()) {
     mpCurrentKF->SetErase();
     return false;
-  } else {
-    return true;
   }
-
-  mpCurrentKF->SetErase();
-  return false;
+  return true;
 }
 
 bool LoopClosing::ComputeSim3() {
@@ -268,7 +264,7 @@ bool LoopClosing::ComputeSim3() {
 
       // If RANSAC returns a Sim3, perform a guided matching and optimize with all correspondences
       if(!Scm.empty()) {
-        vector<MapPoint *> vpMapPointMatches(vvpMapPointMatches[i].size(), static_cast<MapPoint *>(NULL));
+        vector<MapPoint *> vpMapPointMatches(vvpMapPointMatches[i].size(), nullptr);
         for(size_t j = 0, jend = vbInliers.size(); j < jend; j++) {
           if(vbInliers[j])
             vpMapPointMatches[j] = vvpMapPointMatches[i][j];
@@ -280,10 +276,10 @@ bool LoopClosing::ComputeSim3() {
         matcher.SearchBySim3(mpCurrentKF, pKF, vpMapPointMatches, s, R, t, 7.5);
 
         g2o::Sim3 gScm(Converter::toMatrix3d(R), Converter::toVector3d(t), s);
-        const int nInliers = Optimizer::OptimizeSim3(mpCurrentKF, pKF, vpMapPointMatches, gScm, 10, mbFixScale);
+        const int nInliers2 = Optimizer::OptimizeSim3(mpCurrentKF, pKF, vpMapPointMatches, gScm, 10, mbFixScale);
 
         // If optimization is succesful stop ransacs and continue
-        if(nInliers >= 20) {
+        if(nInliers2 >= 20) {
           bMatch = true;
           mpMatchedKF = pKF;
           g2o::Sim3 gSmw(Converter::toMatrix3d(pKF->GetRotation()), Converter::toVector3d(pKF->GetTranslation()), 1.0);
@@ -523,7 +519,7 @@ void LoopClosing::SearchAndFuse(const KeyFrameAndPose &CorrectedPosesMap) {
     g2o::Sim3 g2oScw = mit->second;
     cv::Mat cvScw = Converter::toCvMat(g2oScw);
 
-    vector<MapPoint *> vpReplacePoints(mvpLoopMapPoints.size(), static_cast<MapPoint *>(NULL));
+    vector<MapPoint *> vpReplacePoints(mvpLoopMapPoints.size(), nullptr);
     matcher.Fuse(pKF, cvScw, mvpLoopMapPoints, 4, vpReplacePoints);
 
     // Get Map Mutex
@@ -590,7 +586,7 @@ void LoopClosing::RunGlobalBundleAdjustment(unsigned long nLoopKF) {
       }
 
       // Get Map Mutex
-      std::unique_lock<std::mutex> lock(mpMap->mMutexMapUpdate);
+      std::unique_lock<std::mutex> mapLock(mpMap->mMutexMapUpdate);
 
       // Correct keyframes starting at map first keyframe
       std::list<KeyFrame *> lpKFtoCheck(mpMap->mvpKeyFrameOrigins.begin(), mpMap->mvpKeyFrameOrigins.end());

@@ -36,7 +36,7 @@ void usleep(uint32_t useconds) { std::this_thread::sleep_for(std::chrono::micros
 namespace ORB_SLAM2 {
 
 System::System(const string &strVocFile, const string &strSettingsFile, const eSensor sensor, const bool bUseViewer) :
-    mSensor(sensor), mpViewer(static_cast<Viewer *>(NULL)), mbReset(false), mbActivateLocalizationMode(false),
+    mSensor(sensor), mpViewer(nullptr), mbReset(false), mbActivateLocalizationMode(false),
     mbDeactivateLocalizationMode(false) {
   // Output welcome message
   spdlog::debug("ORB-SLAM2 Copyright (C) 2014-2016 Raul Mur-Artal, University of Zaragoza.");

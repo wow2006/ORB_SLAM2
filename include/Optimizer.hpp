@@ -35,11 +35,11 @@ namespace Optimizer {
 void  BundleAdjustment(const std::vector<KeyFrame *> &vpKF,
                              const std::vector<MapPoint *> &vpMP,
                              int nIterations = 5,
-                             bool *pbStopFlag = NULL,
+                             bool *pbStopFlag = nullptr,
                              const unsigned long nLoopKF = 0,
                              const bool bRobust = true);
 
-void  GlobalBundleAdjustemnt(Map *pMap, int nIterations = 5, bool *pbStopFlag = NULL, const unsigned long nLoopKF = 0, const bool bRobust = true);
+void  GlobalBundleAdjustemnt(Map *pMap, int nIterations = 5, bool *pbStopFlag = nullptr, const unsigned long nLoopKF = 0, const bool bRobust = true);
 
 void  LocalBundleAdjustment(KeyFrame *pKF, bool *pbStopFlag, Map *pMap);
 

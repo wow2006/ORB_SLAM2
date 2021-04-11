@@ -1101,11 +1101,11 @@ int OptimizeSim3(KeyFrame *pKF1, KeyFrame *pKF2, vector<MapPoint *> &vpMatches1,
 
     if(e12->chi2() > th2 || e21->chi2() > th2) {
       size_t idx = vnIndexEdge[i];
-      vpMatches1[idx] = static_cast<MapPoint *>(NULL);
+      vpMatches1[idx] = nullptr;
       optimizer.removeEdge(e12);
       optimizer.removeEdge(e21);
-      vpEdges12[i] = static_cast<g2o::EdgeSim3ProjectXYZ *>(NULL);
-      vpEdges21[i] = static_cast<g2o::EdgeInverseSim3ProjectXYZ *>(NULL);
+      vpEdges12[i] = nullptr;
+      vpEdges21[i] = nullptr;
       nBad++;
     }
   }
@@ -1133,7 +1133,7 @@ int OptimizeSim3(KeyFrame *pKF1, KeyFrame *pKF2, vector<MapPoint *> &vpMatches1,
 
     if(e12->chi2() > th2 || e21->chi2() > th2) {
       size_t idx = vnIndexEdge[i];
-      vpMatches1[idx] = static_cast<MapPoint *>(NULL);
+      vpMatches1[idx] = nullptr;
     } else
       nIn++;
   }
