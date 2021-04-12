@@ -146,9 +146,9 @@ void MapPoint::SetBadFlag() {
     obs = mObservations;
     mObservations.clear();
   }
-  for(map<KeyFrame *, size_t>::iterator mit = obs.begin(), mend = obs.end(); mit != mend; ++mit) {
-    KeyFrame *pKF = mit->first;
-    pKF->EraseMapPointMatch(mit->second);
+  for(auto & ob : obs) {
+    KeyFrame *pKF = ob.first;
+    pKF->EraseMapPointMatch(ob.second);
   }
 
   mpMap->EraseMapPoint(this);
@@ -177,15 +177,15 @@ void MapPoint::Replace(MapPoint *pMP) {
     mpReplaced = pMP;
   }
 
-  for(map<KeyFrame *, size_t>::iterator mit = obs.begin(), mend = obs.end(); mit != mend; ++mit) {
+  for(auto & ob : obs) {
     // Replace measurement in keyframe
-    KeyFrame *pKF = mit->first;
+    KeyFrame *pKF = ob.first;
 
     if(!pMP->IsInKeyFrame(pKF)) {
-      pKF->ReplaceMapPointMatch(mit->second, pMP);
-      pMP->AddObservation(pKF, mit->second);
+      pKF->ReplaceMapPointMatch(ob.second, pMP);
+      pMP->AddObservation(pKF, ob.second);
     } else {
-      pKF->EraseMapPointMatch(mit->second);
+      pKF->EraseMapPointMatch(ob.second);
     }
   }
   pMP->IncreaseFound(nfound);
@@ -234,11 +234,11 @@ void MapPoint::ComputeDistinctiveDescriptors() {
 
   vDescriptors.reserve(observations.size());
 
-  for(map<KeyFrame *, size_t>::iterator mit = observations.begin(), mend = observations.end(); mit != mend; ++mit) {
-    KeyFrame *pKF = mit->first;
+  for(auto & observation : observations) {
+    KeyFrame *pKF = observation.first;
 
     if(!pKF->isBad())
-      vDescriptors.push_back(pKF->mDescriptors.row(mit->second));
+      vDescriptors.push_back(pKF->mDescriptors.row(observation.second));
   }
 
   if(vDescriptors.empty())
@@ -314,8 +314,8 @@ void MapPoint::UpdateNormalAndDepth() {
 
   cv::Mat normal = cv::Mat::zeros(3, 1, CV_32F);
   int n = 0;
-  for(map<KeyFrame *, size_t>::iterator mit = observations.begin(), mend = observations.end(); mit != mend; ++mit) {
-    KeyFrame *pKF = mit->first;
+  for(auto & observation : observations) {
+    KeyFrame *pKF = observation.first;
     cv::Mat Owi = pKF->GetCameraCenter();
     cv::Mat normali = mWorldPos - Owi;
     normal = normal + normali / cv::norm(normali);

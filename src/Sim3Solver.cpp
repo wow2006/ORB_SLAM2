@@ -112,15 +112,16 @@ void Sim3Solver::SetRansacParameters(double probability, int minInliers, int max
   mvbInliersi.resize(N);
 
   // Adjust Parameters according to number of correspondences
-  float epsilon = (float)mRansacMinInliers / N;
+  float epsilon = static_cast<float>(mRansacMinInliers) / N;
 
   // Set RANSAC iterations according to probability, epsilon, and max iterations
   int nIterations;
 
-  if(mRansacMinInliers == N)
+  if(mRansacMinInliers == N) {
     nIterations = 1;
-  else
+  } else {
     nIterations = ceil(log(1 - mRansacProb) / log(1 - pow(epsilon, 3)));
+  }
 
   mRansacMaxIts = max(1, min(nIterations, mRansacMaxIts));
 
@@ -226,7 +227,7 @@ void Sim3Solver::ComputeSim3(cv::Mat &P1, cv::Mat &P2) {
 
   double N11, N12, N13, N14, N22, N23, N24, N33, N34, N44;
 
-  cv::Mat N(4, 4, P1.type());
+  cv::Mat NMat(4, 4, P1.type());
 
   N11 = M.at<float>(0, 0) + M.at<float>(1, 1) + M.at<float>(2, 2);
   N12 = M.at<float>(1, 2) - M.at<float>(2, 1);
@@ -235,17 +236,17 @@ void Sim3Solver::ComputeSim3(cv::Mat &P1, cv::Mat &P2) {
   N22 = M.at<float>(0, 0) - M.at<float>(1, 1) - M.at<float>(2, 2);
   N23 = M.at<float>(0, 1) + M.at<float>(1, 0);
   N24 = M.at<float>(2, 0) + M.at<float>(0, 2);
-  N33 = -M.at<float>(0, 0) + M.at<float>(1, 1) - M.at<float>(2, 2);
+  N33 =-M.at<float>(0, 0) + M.at<float>(1, 1) - M.at<float>(2, 2);
   N34 = M.at<float>(1, 2) + M.at<float>(2, 1);
-  N44 = -M.at<float>(0, 0) - M.at<float>(1, 1) + M.at<float>(2, 2);
+  N44 =-M.at<float>(0, 0) - M.at<float>(1, 1) + M.at<float>(2, 2);
 
-  N = (cv::Mat_<float>(4, 4) << N11, N12, N13, N14, N12, N22, N23, N24, N13, N23, N33, N34, N14, N24, N34, N44);
+  NMat = (cv::Mat_<float>(4, 4) << N11, N12, N13, N14, N12, N22, N23, N24, N13, N23, N33, N34, N14, N24, N34, N44);
 
   // Step 4: Eigenvector of the highest eigenvalue
 
   cv::Mat eval, evec;
 
-  cv::eigen(N, eval, evec);  //evec[0] is the quaternion of the desired rotation
+  cv::eigen(NMat, eval, evec);  //evec[0] is the quaternion of the desired rotation
 
   cv::Mat vec(1, 3, evec.type());
   (evec.row(0).colRange(1, 4)).copyTo(vec);  //extract imaginary part of the quaternion (sin*axis)
@@ -279,11 +280,11 @@ void Sim3Solver::ComputeSim3(cv::Mat &P1, cv::Mat &P2) {
     }
 
     ms12i = nom / den;
-  } else
-    ms12i = 1.0f;
+  } else {
+    ms12i = 1.0F;
+  }
 
   // Step 7: Translation
-
   mt12i.create(1, 3, P1.type());
   mt12i = O1 - ms12i * mR12i * O2;
 
@@ -334,9 +335,9 @@ cv::Mat Sim3Solver::GetEstimatedRotation() { return mBestRotation.clone(); }
 
 cv::Mat Sim3Solver::GetEstimatedTranslation() { return mBestTranslation.clone(); }
 
-float Sim3Solver::GetEstimatedScale() { return mBestScale; }
+float Sim3Solver::GetEstimatedScale() const { return mBestScale; }
 
-void Sim3Solver::Project(const vector<cv::Mat> &vP3Dw, vector<cv::Mat> &vP2D, cv::Mat Tcw, cv::Mat K) {
+void Sim3Solver::Project(const vector<cv::Mat> &vP3Dw, vector<cv::Mat> &vP2D, const cv::Mat& Tcw, cv::Mat K) {
   cv::Mat Rcw = Tcw.rowRange(0, 3).colRange(0, 3);
   cv::Mat tcw = Tcw.rowRange(0, 3).col(3);
   const float &fx = K.at<float>(0, 0);
@@ -347,8 +348,8 @@ void Sim3Solver::Project(const vector<cv::Mat> &vP3Dw, vector<cv::Mat> &vP2D, cv
   vP2D.clear();
   vP2D.reserve(vP3Dw.size());
 
-  for(size_t i = 0, iend = vP3Dw.size(); i < iend; i++) {
-    cv::Mat P3Dc = Rcw * vP3Dw[i] + tcw;
+  for(const auto & i : vP3Dw) {
+    cv::Mat P3Dc = Rcw * i + tcw;
     const float invz = 1 / (P3Dc.at<float>(2));
     const float x = P3Dc.at<float>(0) * invz;
     const float y = P3Dc.at<float>(1) * invz;
@@ -366,10 +367,10 @@ void Sim3Solver::FromCameraToImage(const vector<cv::Mat> &vP3Dc, vector<cv::Mat>
   vP2D.clear();
   vP2D.reserve(vP3Dc.size());
 
-  for(size_t i = 0, iend = vP3Dc.size(); i < iend; i++) {
-    const float invz = 1 / (vP3Dc[i].at<float>(2));
-    const float x = vP3Dc[i].at<float>(0) * invz;
-    const float y = vP3Dc[i].at<float>(1) * invz;
+  for(const auto & i : vP3Dc) {
+    const float invz = 1 / (i.at<float>(2));
+    const float x = i.at<float>(0) * invz;
+    const float y = i.at<float>(1) * invz;
 
     vP2D.push_back((cv::Mat_<float>(2, 1) << fx * x + cx, fy * y + cy));
   }

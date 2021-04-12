@@ -75,7 +75,7 @@ public:
   void ComputeBoW();
 
   // Set the camera pose.
-  void SetPose(cv::Mat Tcw);
+  void SetPose(const cv::Mat& Tcw);
 
   // Computes rotation, translation and camera center matrices from the camera pose.
   void UpdatePoseMatrices();

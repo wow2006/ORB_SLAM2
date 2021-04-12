@@ -293,9 +293,9 @@ Frame::Frame(const cv::Mat &imGray,
 
 void Frame::AssignFeaturesToGrid() {
   const auto nReserve = static_cast<size_t>(0.5F * static_cast<float>(N) / (FRAME_GRID_COLS * FRAME_GRID_ROWS));
-  for(unsigned int i = 0; i < FRAME_GRID_COLS; i++) {
+  for(auto & i : mGrid) {
     for(unsigned int j = 0; j < FRAME_GRID_ROWS; j++) {
-      mGrid[i][j].reserve(nReserve);
+      i[j].reserve(nReserve);
     }
   }
 
@@ -318,7 +318,7 @@ void Frame::ExtractORB(int flag, const cv::Mat &im) {
   }
 }
 
-void Frame::SetPose(cv::Mat Tcw) {
+void Frame::SetPose(const cv::Mat& Tcw) {
   mTcw = Tcw.clone();
   UpdatePoseMatrices();
 }
@@ -338,9 +338,9 @@ bool Frame::isInFrustum(MapPoint *pMP, float viewingCosLimit) {
 
   // 3D in camera coordinates
   const cv::Mat Pc = mRcw * P + mtcw;
-  const float &PcX = Pc.at<float>(0);
-  const float &PcY = Pc.at<float>(1);
-  const float &PcZ = Pc.at<float>(2);
+  const auto &PcX = Pc.at<float>(0);
+  const auto &PcY = Pc.at<float>(1);
+  const auto &PcZ = Pc.at<float>(2);
 
   // Check positive depth
   if(PcZ < 0.0f)
@@ -421,8 +421,8 @@ std::vector<size_t> Frame::GetFeaturesInArea(const float &x, const float &y, con
         continue;
       }
 
-      for(size_t j = 0, jend = vCell.size(); j < jend; j++) {
-        const cv::KeyPoint &kpUn = mvKeysUn[vCell[j]];
+      for(unsigned long j : vCell) {
+        const cv::KeyPoint &kpUn = mvKeysUn[j];
         if(bCheckLevels) {
           if(kpUn.octave < minLevel) {
             continue;
@@ -439,7 +439,7 @@ std::vector<size_t> Frame::GetFeaturesInArea(const float &x, const float &y, con
         const float disty = kpUn.pt.y - y;
 
         if(fabs(distx) < r && fabs(disty) < r) {
-          vIndices.push_back(vCell[j]);
+          vIndices.push_back(j);
         }
       }
     }
@@ -589,8 +589,7 @@ void Frame::ComputeStereoMatches() {
     const cv::Mat &dL = mDescriptors.row(iL);
 
     // Compare descriptor to right keypoints
-    for(size_t iC = 0; iC < vCandidates.size(); iC++) {
-      const size_t iR = vCandidates[iC];
+    for(unsigned long iR : vCandidates) {
       const cv::KeyPoint &kpR = mvKeysRight[iR];
 
       if(kpR.octave < levelL - 1 || kpR.octave > levelL + 1) {
@@ -649,7 +648,7 @@ void Frame::ComputeStereoMatches() {
           bestincR = incR;
         }
 
-        const uint32_t index = static_cast<uint32_t>(L + incR);
+        const auto index = static_cast<uint32_t>(L + incR);
         vDists[index] = dist;
       }
 

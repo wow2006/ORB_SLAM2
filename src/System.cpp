@@ -20,7 +20,6 @@
 #include "System.hpp"
 // Internal
 #include "Map.hpp"
-#include "Frame.hpp"
 #include "Viewer.hpp"
 #include "Tracking.hpp"
 #include "KeyFrame.hpp"
@@ -122,7 +121,7 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
   mpLoopCloser->SetLocalMapper(mpLocalMapper);
 }
 
-cv::Mat System::TrackStereo(const cv::Mat &imLeft, const cv::Mat &imRight, const double &timestamp) {
+[[maybe_unused]] cv::Mat System::TrackStereo(const cv::Mat &imLeft, const cv::Mat &imRight, const double &timestamp) {
   if(mSensor != STEREO) {
     spdlog::error("ERROR: you called TrackStereo but input sensor was not set to STEREO.");
     std::exit(-1); // TODO(Hussein): Remove this
@@ -169,7 +168,7 @@ cv::Mat System::TrackStereo(const cv::Mat &imLeft, const cv::Mat &imRight, const
   return Tcw;
 }
 
-cv::Mat System::TrackRGBD(const cv::Mat &im, const cv::Mat &depthmap, const double &timestamp) {
+[[maybe_unused]] cv::Mat System::TrackRGBD(const cv::Mat &im, const cv::Mat &depthmap, const double &timestamp) {
   if(mSensor != RGBD) {
     spdlog::error("ERROR: you called TrackRGBD but input sensor was not set to RGBD.");
     std::exit(-1); // TODO(Hussein): Remove this
@@ -216,7 +215,7 @@ cv::Mat System::TrackRGBD(const cv::Mat &im, const cv::Mat &depthmap, const doub
   return Tcw;
 }
 
-cv::Mat System::TrackMonocular(const cv::Mat &im, const double &timestamp) {
+[[maybe_unused]] cv::Mat System::TrackMonocular(const cv::Mat &im, const double &timestamp) {
   if(mSensor != MONOCULAR) {
     spdlog::error("ERROR: you called TrackMonocular but input sensor was not set to Monocular.");
     exit(-1); // TODO(Hussein): Remove this
@@ -273,7 +272,7 @@ void System::DeactivateLocalizationMode() {
   mbDeactivateLocalizationMode = true;
 }
 
-bool System::MapChanged() {
+[[maybe_unused]] bool System::MapChanged() {
   static int n = 0;
   int curn = mpMap->GetLastBigChangeIdx();
   if(n < curn) {
@@ -308,7 +307,7 @@ void System::Shutdown() {
   }
 }
 
-void System::SaveTrajectoryTUM(const string &filename) {
+[[maybe_unused]] void System::SaveTrajectoryTUM(const string &filename) {
   spdlog::debug("Saving camera trajectory to {} ...", filename);
   if(mSensor == MONOCULAR) {
     spdlog::error("ERROR: SaveTrajectoryTUM cannot be used for monocular.");
@@ -366,7 +365,7 @@ void System::SaveTrajectoryTUM(const string &filename) {
   spdlog::debug("trajectory saved!");
 }
 
-void System::SaveKeyFrameTrajectoryTUM(const string &filename) {
+[[maybe_unused]] void System::SaveKeyFrameTrajectoryTUM(const string &filename) {
   spdlog::debug("Saving keyframe trajectory to {} ...", filename);
 
   auto vpKFs = mpMap->GetAllKeyFrames();
@@ -380,9 +379,7 @@ void System::SaveKeyFrameTrajectoryTUM(const string &filename) {
   f.open(filename.c_str());
   f << fixed;
 
-  for(size_t i = 0; i < vpKFs.size(); i++) {
-    KeyFrame *pKF = vpKFs[i];
-
+  for(auto pKF : vpKFs) {
     // pKF->SetPose(pKF->GetPose()*Two);
 
     if(pKF->isBad()) {
@@ -400,7 +397,7 @@ void System::SaveKeyFrameTrajectoryTUM(const string &filename) {
   spdlog::debug("trajectory saved!");
 }
 
-void System::SaveTrajectoryKITTI(const string &filename) {
+[[maybe_unused]] void System::SaveTrajectoryKITTI(const string &filename) {
   spdlog::debug("Saving camera trajectory to {} ...", filename);
   if(mSensor == MONOCULAR) {
     spdlog::error("ERROR: SaveTrajectoryKITTI cannot be used for monocular.");
@@ -461,7 +458,7 @@ std::vector<MapPoint *> System::GetTrackedMapPoints() {
   return mTrackedMapPoints;
 }
 
-vector<cv::KeyPoint> System::GetTrackedKeyPointsUn() {
+std::vector<cv::KeyPoint> System::GetTrackedKeyPointsUn() {
   std::unique_lock<std::mutex> lock(mMutexState);
   return mTrackedKeyPointsUn;
 }

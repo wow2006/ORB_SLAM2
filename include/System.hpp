@@ -42,7 +42,7 @@ public:
 
 public:
   // Initialize the SLAM system. It launches the Local Mapping, Loop Closing and Viewer threads.
-  System(const string &strVocFile, const string &strSettingsFile, const eSensor sensor, const bool bUseViewer = true);
+  System(const string &strVocFile, const string &strSettingsFile, eSensor sensor, bool bUseViewer = true);
 
   System(const System&) = delete;
 
@@ -55,18 +55,18 @@ public:
   // Proccess the given stereo frame. Images must be synchronized and rectified.
   // Input images: RGB (CV_8UC3) or grayscale (CV_8U). RGB is converted to grayscale.
   // Returns the camera pose (empty if tracking fails).
-  cv::Mat TrackStereo(const cv::Mat &imLeft, const cv::Mat &imRight, const double &timestamp);
+  [[maybe_unused]] cv::Mat TrackStereo(const cv::Mat &imLeft, const cv::Mat &imRight, const double &timestamp);
 
   // Process the given rgbd frame. Depthmap must be registered to the RGB frame.
   // Input image: RGB (CV_8UC3) or grayscale (CV_8U). RGB is converted to grayscale.
   // Input depthmap: Float (CV_32F).
   // Returns the camera pose (empty if tracking fails).
-  cv::Mat TrackRGBD(const cv::Mat &im, const cv::Mat &depthmap, const double &timestamp);
+  [[maybe_unused]] cv::Mat TrackRGBD(const cv::Mat &im, const cv::Mat &depthmap, const double &timestamp);
 
   // Proccess the given monocular frame
   // Input images: RGB (CV_8UC3) or grayscale (CV_8U). RGB is converted to grayscale.
   // Returns the camera pose (empty if tracking fails).
-  cv::Mat TrackMonocular(const cv::Mat &im, const double &timestamp);
+  [[maybe_unused]] cv::Mat TrackMonocular(const cv::Mat &im, const double &timestamp);
 
   // This stops local mapping thread (map building) and performs only camera tracking.
   void ActivateLocalizationMode();
@@ -75,7 +75,7 @@ public:
 
   // Returns true if there have been a big map change (loop closure, global BA)
   // since last call to this function
-  bool MapChanged();
+  [[maybe_unused]] bool MapChanged();
 
   // Reset the system (clear map)
   void Reset();
@@ -89,19 +89,19 @@ public:
   // Only for stereo and RGB-D. This method does not work for monocular.
   // Call first Shutdown()
   // See format details at: http://vision.in.tum.de/data/datasets/rgbd-dataset
-  void SaveTrajectoryTUM(const string &filename);
+  [[maybe_unused]] void SaveTrajectoryTUM(const string &filename);
 
   // Save keyframe poses in the TUM RGB-D dataset format.
   // This method works for all sensor input.
   // Call first Shutdown()
   // See format details at: http://vision.in.tum.de/data/datasets/rgbd-dataset
-  void SaveKeyFrameTrajectoryTUM(const string &filename);
+  [[maybe_unused]] void SaveKeyFrameTrajectoryTUM(const string &filename);
 
   // Save camera trajectory in the KITTI dataset format.
   // Only for stereo and RGB-D. This method does not work for monocular.
   // Call first Shutdown()
   // See format details at: http://www.cvlibs.net/datasets/kitti/eval_odometry.php
-  void SaveTrajectoryKITTI(const string &filename);
+  [[maybe_unused]] void SaveTrajectoryKITTI(const string &filename);
 
   // TODO: Save/Load functions
   // SaveMap(const string &filename);
@@ -109,10 +109,10 @@ public:
 
   // Information from most recent processed frame
   // You can call this right after TrackMonocular (or stereo or RGBD)
-  int GetTrackingState();
+  [[maybe_unused]] int GetTrackingState();
 
-  std::vector<MapPoint *> GetTrackedMapPoints();
-  std::vector<cv::KeyPoint> GetTrackedKeyPointsUn();
+  [[maybe_unused]] std::vector<MapPoint *> GetTrackedMapPoints();
+  [[maybe_unused]] std::vector<cv::KeyPoint> GetTrackedKeyPointsUn();
 
 private:
   // Input sensor
@@ -147,9 +147,9 @@ private:
 
   // System threads: Local Mapping, Loop Closing, Viewer.
   // The Tracking thread "lives" in the main execution thread that creates the System object.
-  std::thread *mptLocalMapping;
-  std::thread *mptLoopClosing;
-  std::thread *mptViewer;
+  [[maybe_unused]] std::thread *mptLocalMapping;
+  [[maybe_unused]] std::thread *mptLoopClosing;
+  [[maybe_unused]] std::thread *mptViewer;
 
   // Reset flag
   std::mutex mMutexReset;

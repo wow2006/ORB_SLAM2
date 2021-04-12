@@ -36,9 +36,9 @@ class LoopClosing final {
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   using ConsistentGroup = pair<set<KeyFrame *>, int>;
-  using KeyFrameAndPose = map<KeyFrame *, g2o::Sim3, std::less<KeyFrame *>, Eigen::aligned_allocator<std::pair<KeyFrame *const, g2o::Sim3>>>;
+  using KeyFrameAndPose = map<KeyFrame *, g2o::Sim3, std::less<>, Eigen::aligned_allocator<std::pair<KeyFrame *const, g2o::Sim3>>>;
 
-  LoopClosing(Map *pMap, KeyFrameDatabase *pDB, ORBVocabulary *pVoc, const bool bFixScale);
+  LoopClosing(Map *pMap, KeyFrameDatabase *pDB, ORBVocabulary *pVoc, bool bFixScale);
 
   void SetTracker(Tracking *pTracker);
 
@@ -90,12 +90,12 @@ protected:
   std::mutex mMutexFinish;
 
   Map *mpMap;
-  Tracking *mpTracker;
+  Tracking *mpTracker{};
 
   KeyFrameDatabase *mpKeyFrameDB;
   ORBVocabulary *mpORBVocabulary;
 
-  LocalMapping *mpLocalMapper;
+  LocalMapping *mpLocalMapper{};
 
   std::list<KeyFrame *> mlpLoopKeyFrameQueue;
 
@@ -105,7 +105,7 @@ protected:
   float mnCovisibilityConsistencyTh;
 
   // Loop detector variables
-  KeyFrame *mpCurrentKF;
+  KeyFrame *mpCurrentKF{};
   KeyFrame *mpMatchedKF;
   std::vector<ConsistentGroup> mvConsistentGroups;
   std::vector<KeyFrame *> mvpEnoughConsistentCandidates;

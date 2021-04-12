@@ -59,7 +59,7 @@ using namespace std;
 namespace ORB_SLAM2 {
 
 PnPsolver::PnPsolver(const Frame &F, const vector<MapPoint *> &vpMapPointMatches) :
-    pws(0), us(0), alphas(0), pcs(0), maximum_number_of_correspondences(0), number_of_correspondences(0),
+    pws(nullptr), us(nullptr), alphas(nullptr), pcs(nullptr), maximum_number_of_correspondences(0), number_of_correspondences(0),
     mvpMapPointMatches(vpMapPointMatches), mnInliersi(0),
     mnIterations(0), mnBestInliers(0), N(0) {
   mvP2D.reserve(F.mvpMapPoints.size());
@@ -80,7 +80,7 @@ PnPsolver::PnPsolver(const Frame &F, const vector<MapPoint *> &vpMapPointMatches
         mvSigma2.push_back(F.mvLevelSigma2[kp.octave]);
 
         cv::Mat Pos = pMP->GetWorldPos();
-        mvP3Dw.push_back(cv::Point3f(Pos.at<float>(0), Pos.at<float>(1), Pos.at<float>(2)));
+        mvP3Dw.emplace_back(Pos.at<float>(0), Pos.at<float>(1), Pos.at<float>(2));
 
         mvKeyPointIndices.push_back(i);
         mvAllIndices.push_back(idx);
@@ -125,8 +125,9 @@ void PnPsolver::SetRansacParameters(double probability, int minInliers, int maxI
     nMinInliers = minSet;
   mRansacMinInliers = nMinInliers;
 
-  if(mRansacEpsilon < (float)mRansacMinInliers / N)
-    mRansacEpsilon = (float)mRansacMinInliers / N;
+  if(mRansacEpsilon < static_cast<float>(mRansacMinInliers) / N) {
+    mRansacEpsilon = static_cast<float>(mRansacMinInliers) / N;
+  }
 
   // Set RANSAC iterations according to probability, epsilon, and max iterations
   int nIterations;
@@ -245,8 +246,7 @@ bool PnPsolver::Refine() {
 
   reset_correspondences();
 
-  for(size_t i = 0; i < vIndices.size(); i++) {
-    int idx = vIndices[i];
+  for(int idx : vIndices) {
     add_correspondence(mvP3Dw[idx].x, mvP3Dw[idx].y, mvP3Dw[idx].z, mvP2D[idx].x, mvP2D[idx].y);
   }
 
@@ -303,14 +303,21 @@ void PnPsolver::CheckInliers() {
 
 void PnPsolver::set_maximum_number_of_correspondences(int n) {
   if(maximum_number_of_correspondences < n) {
-    if(pws != 0)
+
       delete[] pws;
-    if(us != 0)
+
+
+
       delete[] us;
-    if(alphas != 0)
+
+
+
       delete[] alphas;
-    if(pcs != 0)
+
+
+
       delete[] pcs;
+
 
     maximum_number_of_correspondences = n;
     pws = new double[3 * maximum_number_of_correspondences];
@@ -320,7 +327,7 @@ void PnPsolver::set_maximum_number_of_correspondences(int n) {
   }
 }
 
-void PnPsolver::reset_correspondences(void) { number_of_correspondences = 0; }
+void PnPsolver::reset_correspondences() { number_of_correspondences = 0; }
 
 void PnPsolver::add_correspondence(double X, double Y, double Z, double u, double v) {
   pws[3 * number_of_correspondences] = X;
@@ -333,7 +340,7 @@ void PnPsolver::add_correspondence(double X, double Y, double Z, double u, doubl
   number_of_correspondences++;
 }
 
-void PnPsolver::choose_control_points(void) {
+void PnPsolver::choose_control_points() {
   // Take C0 as the reference points centroid:
   cws[0][0] = cws[0][1] = cws[0][2] = 0;
   for(int i = 0; i < number_of_correspondences; i++)
@@ -356,7 +363,7 @@ void PnPsolver::choose_control_points(void) {
       PW0->data.db[3 * i + j] = pws[3 * i + j] - cws[0][j];
 
   cvMulTransposed(PW0, &PW0tPW0, 1);
-  cvSVD(&PW0tPW0, &DC, &UCt, 0, CV_SVD_MODIFY_A | CV_SVD_U_T);
+  cvSVD(&PW0tPW0, &DC, &UCt, nullptr, CV_SVD_MODIFY_A | CV_SVD_U_T);
 
   cvReleaseMat(&PW0);
 
@@ -367,7 +374,7 @@ void PnPsolver::choose_control_points(void) {
   }
 }
 
-void PnPsolver::compute_barycentric_coordinates(void) {
+void PnPsolver::compute_barycentric_coordinates() {
   double cc[3 * 3], cc_inv[3 * 3];
   CvMat CC = cvMat(3, 3, CV_64F, cc);
   CvMat CC_inv = cvMat(3, 3, CV_64F, cc_inv);
@@ -388,7 +395,7 @@ void PnPsolver::compute_barycentric_coordinates(void) {
   }
 }
 
-void PnPsolver::fill_M(CvMat *M, const int row, const double *as, const double u, const double v) {
+void PnPsolver::fill_M(CvMat *M, const int row, const double *as, const double u, const double v) const {
   double *M1 = M->data.db + row * 12;
   double *M2 = M1 + 12;
 
@@ -404,8 +411,8 @@ void PnPsolver::fill_M(CvMat *M, const int row, const double *as, const double u
 }
 
 void PnPsolver::compute_ccs(const double *betas, const double *ut) {
-  for(int i = 0; i < 4; i++)
-    ccs[i][0] = ccs[i][1] = ccs[i][2] = 0.0f;
+  for(auto & cc : ccs)
+    cc[0] = cc[1] = cc[2] = 0.0f;
 
   for(int i = 0; i < 4; i++) {
     const double *v = ut + 12 * (11 - i);
@@ -415,7 +422,7 @@ void PnPsolver::compute_ccs(const double *betas, const double *ut) {
   }
 }
 
-void PnPsolver::compute_pcs(void) {
+void PnPsolver::compute_pcs() {
   for(int i = 0; i < number_of_correspondences; i++) {
     double *a = alphas + 4 * i;
     double *pc = pcs + 3 * i;
@@ -440,7 +447,7 @@ double PnPsolver::compute_pose(double R[3][3], double t[3]) {
   CvMat Ut = cvMat(12, 12, CV_64F, ut);
 
   cvMulTransposed(M, &MtM, 1);
-  cvSVD(&MtM, &D, &Ut, 0, CV_SVD_MODIFY_A | CV_SVD_U_T);
+  cvSVD(&MtM, &D, &Ut, nullptr, CV_SVD_MODIFY_A | CV_SVD_U_T);
   cvReleaseMat(&M);
 
   double l_6x10[6 * 10], rho[6];
@@ -465,15 +472,17 @@ double PnPsolver::compute_pose(double R[3][3], double t[3]) {
   gauss_newton(&L_6x10, &Rho, Betas[3]);
   rep_errors[3] = compute_R_and_t(ut, Betas[3], Rs[3], ts[3]);
 
-  int N = 1;
-  if(rep_errors[2] < rep_errors[1])
-    N = 2;
-  if(rep_errors[3] < rep_errors[N])
-    N = 3;
+  int Nerror = 1;
+  if(rep_errors[2] < rep_errors[1]) {
+    Nerror = 2;
+  }
+  if(rep_errors[3] < rep_errors[Nerror]) {
+    Nerror = 3;
+  }
 
-  copy_R_and_t(Rs[N], ts[N], R, t);
+  copy_R_and_t(Rs[Nerror], ts[Nerror], R, t);
 
-  return rep_errors[N];
+  return rep_errors[Nerror];
 }
 
 void PnPsolver::copy_R_and_t(const double R_src[3][3], const double t_src[3], double R_dst[3][3], double t_dst[3]) {
@@ -572,11 +581,11 @@ void PnPsolver::print_pose(const double R[3][3], const double t[3]) {
   spdlog::debug("{}, {}, {}, {}", R[2][0], R[2][1], R[2][2], t[2]);
 }
 
-void PnPsolver::solve_for_sign(void) {
+void PnPsolver::solve_for_sign() {
   if(pcs[2] < 0.0) {
-    for(int i = 0; i < 4; ++i) {
-      for(int j = 0; j < 3; ++j) {
-        ccs[i][j] = -ccs[i][j];
+    for(auto & cc : ccs) {
+      for(double & j : cc) {
+        j = -j;
       }
     }
 
@@ -741,7 +750,7 @@ void PnPsolver::compute_rho(double *rho) {
   rho[5] = dist2(cws[2], cws[3]);
 }
 
-void PnPsolver::compute_A_and_b_gauss_newton(const double *l_6x10, const double *rho, double betas[4], CvMat *A, CvMat *b) {
+void PnPsolver::compute_A_and_b_gauss_newton(const double *l_6x10, const double *rho, const double betas[4], CvMat *A, CvMat *b) {
   for(int i = 0; i < 6; i++) {
     const double *rowL = l_6x10 + i * 10;
     double *rowA = A->data.db + i * 4;
@@ -810,11 +819,11 @@ void PnPsolver::qr_solve(CvMat *A, CvMat *b, CvMat *X) {
       spdlog::error("God damnit, A is singular, this shouldn't happen.");
       return;
     } else {
-      double *ppAik = ppAkk, sum = 0.0, inv_eta = 1. / eta;
+      double *ppAik3 = ppAkk, sum = 0.0, inv_eta = 1. / eta;
       for(int i = k; i < nr; i++) {
-        *ppAik *= inv_eta;
-        sum += *ppAik * *ppAik;
-        ppAik += nc;
+        *ppAik3 *= inv_eta;
+        sum += *ppAik3 * *ppAik3;
+        ppAik3 += nc;
       }
       double sigma = sqrt(sum);
       if(*ppAkk < 0)
@@ -823,16 +832,16 @@ void PnPsolver::qr_solve(CvMat *A, CvMat *b, CvMat *X) {
       A1[k] = sigma * *ppAkk;
       A2[k] = -eta * sigma;
       for(int j = k + 1; j < nc; j++) {
-        double *ppAik = ppAkk, sum = 0;
+        double *ppAik2 = ppAkk, sum2 = 0;
         for(int i = k; i < nr; i++) {
-          sum += *ppAik * ppAik[j - k];
-          ppAik += nc;
+          sum2 += *ppAik2 * ppAik2[j - k];
+          ppAik2 += nc;
         }
-        double tau = sum / A1[k];
-        ppAik = ppAkk;
+        double tau = sum2 / A1[k];
+        ppAik2 = ppAkk;
         for(int i = k; i < nr; i++) {
-          ppAik[j - k] -= tau * *ppAik;
-          ppAik += nc;
+          ppAik2[j - k] -= tau * *ppAik2;
+          ppAik2 += nc;
         }
       }
     }

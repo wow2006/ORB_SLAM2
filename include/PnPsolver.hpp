@@ -72,59 +72,59 @@ private:
   bool Refine();
 
   // Functions from the original EPnP code
-  void set_maximum_number_of_correspondences(const int n);
+  void set_maximum_number_of_correspondences(int n);
 
-  void reset_correspondences(void);
+  void reset_correspondences();
 
-  void add_correspondence(const double X, const double Y, const double Z, const double u, const double v);
+  void add_correspondence(double X, double Y, double Z, double u, double v);
 
   double compute_pose(double R[3][3], double T[3]);
 
-  [[maybe_unused]] void relative_error(double &rot_err, double &transl_err, const double Rtrue[3][3], const double ttrue[3], const double Rest[3][3], const double test[3]);
+  [[maybe_unused]] static void relative_error(double &rot_err, double &transl_err, const double Rtrue[3][3], const double ttrue[3], const double Rest[3][3], const double test[3]);
 
-  [[maybe_unused]] void print_pose(const double R[3][3], const double t[3]);
+  [[maybe_unused]] static void print_pose(const double R[3][3], const double t[3]);
 
   double reprojection_error(const double R[3][3], const double t[3]);
 
-  void choose_control_points(void);
+  void choose_control_points();
 
-  void compute_barycentric_coordinates(void);
+  void compute_barycentric_coordinates();
 
-  void fill_M(CvMat *M, const int row, const double *alphas, const double u, const double v);
+  void fill_M(CvMat *M, int row, const double *alphas, double u, double v) const;
 
   void compute_ccs(const double *betas, const double *ut);
 
-  void compute_pcs(void);
+  void compute_pcs();
 
-  void solve_for_sign(void);
+  void solve_for_sign();
 
-  void find_betas_approx_1(const CvMat *L_6x10, const CvMat *Rho, double *betas);
+  static void find_betas_approx_1(const CvMat *L_6x10, const CvMat *Rho, double *betas);
 
-  void find_betas_approx_2(const CvMat *L_6x10, const CvMat *Rho, double *betas);
+  static void find_betas_approx_2(const CvMat *L_6x10, const CvMat *Rho, double *betas);
 
-  void find_betas_approx_3(const CvMat *L_6x10, const CvMat *Rho, double *betas);
+  static void find_betas_approx_3(const CvMat *L_6x10, const CvMat *Rho, double *betas);
 
-  void qr_solve(CvMat *A, CvMat *b, CvMat *X);
+  static void qr_solve(CvMat *A, CvMat *b, CvMat *X);
 
-  double dot(const double *v1, const double *v2);
+  static double dot(const double *v1, const double *v2);
 
-  double dist2(const double *p1, const double *p2);
+  static double dist2(const double *p1, const double *p2);
 
   void compute_rho(double *rho);
 
-  void compute_L_6x10(const double *ut, double *l_6x10);
+  static void compute_L_6x10(const double *ut, double *l_6x10);
 
   void gauss_newton(const CvMat *L_6x10, const CvMat *Rho, double current_betas[4]);
 
-  void compute_A_and_b_gauss_newton(const double *l_6x10, const double *rho, double cb[4], CvMat *A, CvMat *b);
+  static void compute_A_and_b_gauss_newton(const double *l_6x10, const double *rho, const double cb[4], CvMat *A, CvMat *b);
 
   double compute_R_and_t(const double *ut, const double *betas, double R[3][3], double t[3]);
 
   void estimate_R_and_t(double R[3][3], double t[3]);
 
-  void copy_R_and_t(const double R_dst[3][3], const double t_dst[3], double R_src[3][3], double t_src[3]);
+  static void copy_R_and_t(const double R_dst[3][3], const double t_dst[3], double R_src[3][3], double t_src[3]);
 
-  void mat_to_quat(const double R[3][3], double q[4]);
+  static void mat_to_quat(const double R[3][3], double q[4]);
 
   double uc = 0, vc = 0, fu = 0, fv = 0;
 

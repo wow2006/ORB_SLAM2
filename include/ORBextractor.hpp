@@ -61,7 +61,7 @@ public:
   std::vector<cv::Mat> mvImagePyramid;
 
 protected:
-  void ComputePyramid(cv::Mat image);
+  void ComputePyramid(const cv::Mat& image);
 
   void ComputeKeyPointsOctTree(std::vector<std::vector<cv::KeyPoint> > &allKeypoints);
 
@@ -71,9 +71,9 @@ protected:
                                               const int &minY,
                                               const int &maxY,
                                               const int &nFeatures,
-                                              const int &level);
+                                              const int &level) const;
 
-  void ComputeKeyPointsOld(std::vector<std::vector<cv::KeyPoint> > &allKeypoints);
+  [[maybe_unused]] void ComputeKeyPointsOld(std::vector<std::vector<cv::KeyPoint> > &allKeypoints);
 
   std::vector<cv::Point> pattern;
 

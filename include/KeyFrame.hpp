@@ -54,7 +54,7 @@ public:
   void UpdateBestCovisibles();
   std::set<KeyFrame *> GetConnectedKeyFrames();
   std::vector<KeyFrame *> GetVectorCovisibleKeyFrames();
-  std::vector<KeyFrame *> GetBestCovisibilityKeyFrames(const int &N);
+  std::vector<KeyFrame *> GetBestCovisibilityKeyFrames(int N);
   std::vector<KeyFrame *> GetCovisiblesByWeight(const int &w);
   int GetWeight(KeyFrame *pKF);
 
@@ -85,7 +85,7 @@ public:
   cv::Mat UnprojectStereo(int i);
 
   // Image
-  bool IsInImage(const float &x, const float &y) const;
+  [[nodiscard]] bool IsInImage(const float &x, const float &y) const;
 
   // Enable/Disable bad flag changes
   void SetNotErase();
@@ -96,7 +96,7 @@ public:
   bool isBad();
 
   // Compute Scene Depth (q=2 median). Used in monocular.
-  float ComputeSceneMedianDepth(const int q);
+  float ComputeSceneMedianDepth(int q);
 
   static bool weightComp(int a, int b) { return a > b; }
 

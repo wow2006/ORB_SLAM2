@@ -43,7 +43,7 @@ public:
            Map *pMap,
            KeyFrameDatabase *pKFDB,
            const string &strSettingPath,
-           const int sensor);
+           int sensor);
 
   // Preprocess the input and call Track(). Extract features and performs stereo matching.
   cv::Mat GrabImageStereo(const cv::Mat &imRectLeft, const cv::Mat &imRectRight, const double &timestamp);
@@ -59,7 +59,7 @@ public:
   // Load new settings
   // The focal lenght should be similar or scale prediction will fail when projecting points
   // TODO: Modify MapPoint::PredictScale to take into account focal lenght
-  void ChangeCalibration(const string &strSettingPath);
+  [[maybe_unused]] void ChangeCalibration(const string &strSettingPath);
 
   // Use this function if you have deactivated local mapping and you only want to localize the camera.
   void InformOnlyTracking(const bool &flag);
@@ -132,8 +132,8 @@ protected:
   bool mbVO;
 
   //Other Thread Pointers
-  LocalMapping *mpLocalMapper;
-  LoopClosing *mpLoopClosing;
+  LocalMapping *mpLocalMapper{};
+  LoopClosing *mpLoopClosing{};
 
   //ORB
   ORBextractor *mpORBextractorLeft, *mpORBextractorRight;
@@ -147,7 +147,7 @@ protected:
   Initializer *mpInitializer;
 
   //Local Map
-  KeyFrame *mpReferenceKF;
+  KeyFrame *mpReferenceKF{};
   std::vector<KeyFrame *> mvpLocalKeyFrames;
   std::vector<MapPoint *> mvpLocalMapPoints;
 
@@ -180,12 +180,12 @@ protected:
   float mDepthMapFactor;
 
   //Current matches in frame
-  int mnMatchesInliers;
+  int mnMatchesInliers{};
 
   //Last Frame, KeyFrame and Relocalisation Info
-  KeyFrame *mpLastKeyFrame;
+  KeyFrame *mpLastKeyFrame = nullptr;
   Frame mLastFrame;
-  unsigned int mnLastKeyFrameId;
+  unsigned int mnLastKeyFrameId{};
   unsigned int mnLastRelocFrameId;
 
   //Motion Model

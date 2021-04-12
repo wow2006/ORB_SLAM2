@@ -91,7 +91,7 @@ target_compile_definitions(
 target_compile_features(
   ${PROJECT_NAME}
   PUBLIC
-  cxx_std_11
+  cxx_std_17
 )
 
 target_compile_options(
@@ -99,7 +99,6 @@ target_compile_options(
   PUBLIC
   -march=native
 )
-
 
 target_precompile_headers(
   ${PROJECT_NAME}

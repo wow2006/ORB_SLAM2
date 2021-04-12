@@ -26,7 +26,7 @@ class KeyFrame;
 
 class Sim3Solver final {
 public:
-  Sim3Solver(KeyFrame *pKF1, KeyFrame *pKF2, const std::vector<MapPoint *> &vpMatched12, const bool bFixScale = true);
+  Sim3Solver(KeyFrame *pKF1, KeyFrame *pKF2, const std::vector<MapPoint *> &vpMatched12, bool bFixScale = true);
 
   void SetRansacParameters(double probability = 0.99, int minInliers = 6, int maxIterations = 300);
 
@@ -38,55 +38,55 @@ public:
 
   cv::Mat GetEstimatedTranslation();
 
-  float GetEstimatedScale();
+  [[nodiscard]] float GetEstimatedScale() const;
 
 protected:
-  void ComputeCentroid(cv::Mat &P, cv::Mat &Pr, cv::Mat &C);
+  static void ComputeCentroid(cv::Mat &P, cv::Mat &Pr, cv::Mat &C);
 
   void ComputeSim3(cv::Mat &P1, cv::Mat &P2);
 
   void CheckInliers();
 
-  void Project(const std::vector<cv::Mat> &vP3Dw, std::vector<cv::Mat> &vP2D, cv::Mat Tcw, cv::Mat K);
+  static void Project(const std::vector<cv::Mat> &vP3Dw, std::vector<cv::Mat> &vP2D, const cv::Mat& Tcw, cv::Mat K);
 
-  void FromCameraToImage(const std::vector<cv::Mat> &vP3Dc, std::vector<cv::Mat> &vP2D, cv::Mat K);
+  static void FromCameraToImage(const std::vector<cv::Mat> &vP3Dc, std::vector<cv::Mat> &vP2D, cv::Mat K);
 
 protected:
   // KeyFrames and matches
-  KeyFrame *mpKF1;
-  KeyFrame *mpKF2;
+  [[maybe_unused]] KeyFrame *mpKF1;
+  [[maybe_unused]] KeyFrame *mpKF2;
 
   std::vector<cv::Mat> mvX3Dc1;
   std::vector<cv::Mat> mvX3Dc2;
   std::vector<MapPoint *> mvpMapPoints1;
   std::vector<MapPoint *> mvpMapPoints2;
-  std::vector<MapPoint *> mvpMatches12;
+  [[maybe_unused]] std::vector<MapPoint *> mvpMatches12;
   std::vector<size_t> mvnIndices1;
-  std::vector<size_t> mvSigmaSquare1;
-  std::vector<size_t> mvSigmaSquare2;
+  [[maybe_unused]] std::vector<size_t> mvSigmaSquare1;
+  [[maybe_unused]] std::vector<size_t> mvSigmaSquare2;
   std::vector<size_t> mvnMaxError1;
   std::vector<size_t> mvnMaxError2;
 
-  int N;
+  int N{};
   int mN1;
 
   // Current Estimation
   cv::Mat mR12i;
   cv::Mat mt12i;
-  float ms12i;
+  float ms12i{};
   cv::Mat mT12i;
   cv::Mat mT21i;
   std::vector<bool> mvbInliersi;
-  int mnInliersi;
+  int mnInliersi{};
 
   // Current Ransac State
   int mnIterations;
-  std::vector<bool> mvbBestInliers;
+  [[maybe_unused]] std::vector<bool> mvbBestInliers;
   int mnBestInliers;
   cv::Mat mBestT12;
   cv::Mat mBestRotation;
   cv::Mat mBestTranslation;
-  float mBestScale;
+  float mBestScale{};
 
   // Scale is fixed to 1 in the stereo/RGBD case
   bool mbFixScale;
@@ -99,17 +99,17 @@ protected:
   std::vector<cv::Mat> mvP2im2;
 
   // RANSAC probability
-  double mRansacProb;
+  double mRansacProb{};
 
   // RANSAC min inliers
-  int mRansacMinInliers;
+  int mRansacMinInliers{};
 
   // RANSAC max iterations
-  int mRansacMaxIts;
+  int mRansacMaxIts{};
 
   // Threshold inlier/outlier. e = dist(Pi,T_ij*Pj)^2 < 5.991*mSigma2
-  float mTh;
-  float mSigma2;
+  [[maybe_unused]] float mTh{};
+  [[maybe_unused]] float mSigma2{};
 
   // Calibration
   cv::Mat mK1;

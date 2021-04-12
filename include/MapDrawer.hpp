@@ -30,15 +30,15 @@ public:
 
   Map *mpMap;
 
-  void DrawMapPoints();
+  void DrawMapPoints() const;
 
-  void DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph);
+  void DrawKeyFrames(bool bDrawKF, bool bDrawGraph) const;
 
-  void DrawCurrentCamera(pangolin::OpenGlMatrix &Twc);
+  void DrawCurrentCamera(pangolin::OpenGlMatrix &Twc) const;
 
   void SetCurrentCameraPose(const cv::Mat &Tcw);
 
-  void SetReferenceKeyFrame(KeyFrame *pKF);
+  /*void SetReferenceKeyFrame(KeyFrame *pKF);*/
 
   void GetCurrentOpenGLCameraMatrix(pangolin::OpenGlMatrix &M);
 

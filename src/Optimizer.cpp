@@ -371,8 +371,9 @@ int PoseOptimization(Frame *pFrame) {
         e->setLevel(0);
       }
 
-      if(it == 2)
-        e->setRobustKernel(0);
+      if(it == 2) {
+        e->setRobustKernel(nullptr);
+      }
     }
 
     for(size_t i = 0, iend = vpEdgesStereo.size(); i < iend; i++) {
@@ -395,8 +396,9 @@ int PoseOptimization(Frame *pFrame) {
         pFrame->mvbOutlier[idx] = false;
       }
 
-      if(it == 2)
-        e->setRobustKernel(0);
+      if(it == 2) {
+        e->setRobustKernel(nullptr);
+      }
     }
 
     if(optimizer.edges().size() < 10)
@@ -626,7 +628,7 @@ void LocalBundleAdjustment(KeyFrame *pKF, bool *pbStopFlag, Map *pMap) {
         e->setLevel(1);
       }
 
-      e->setRobustKernel(0);
+      e->setRobustKernel(nullptr);
     }
 
     for(size_t i = 0, iend = vpEdgesStereo.size(); i < iend; i++) {
@@ -640,7 +642,7 @@ void LocalBundleAdjustment(KeyFrame *pKF, bool *pbStopFlag, Map *pMap) {
         e->setLevel(1);
       }
 
-      e->setRobustKernel(0);
+      e->setRobustKernel(nullptr);
     }
 
     // Optimize again without the outliers

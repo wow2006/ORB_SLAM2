@@ -29,7 +29,7 @@ class LoopClosing;
 
 class LocalMapping final {
 public:
-  LocalMapping(Map *pMap, const float bMonocular);
+  LocalMapping(Map *pMap, float bMonocular);
 
   void SetLoopCloser(LoopClosing *pLoopCloser);
 
@@ -85,7 +85,7 @@ protected:
 
   cv::Mat ComputeF12(KeyFrame *&pKF1, KeyFrame *&pKF2);
 
-  cv::Mat SkewSymmetricMatrix(const cv::Mat &v);
+  static cv::Mat SkewSymmetricMatrix(const cv::Mat &v);
 
   bool mbMonocular;
 
@@ -104,12 +104,12 @@ protected:
 
   Map *mpMap;
 
-  LoopClosing *mpLoopCloser;
-  Tracking *mpTracker;
+  LoopClosing *mpLoopCloser = nullptr;
+  Tracking *mpTracker = nullptr;
 
   std::list<KeyFrame *> mlNewKeyFrames;
 
-  KeyFrame *mpCurrentKeyFrame;
+  KeyFrame *mpCurrentKeyFrame = nullptr;
 
   std::list<MapPoint *> mlpRecentAddedMapPoints;
 

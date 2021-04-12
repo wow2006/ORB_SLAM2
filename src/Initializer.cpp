@@ -53,7 +53,7 @@ bool Initializer::Initialize(const Frame &CurrentFrame,
   mvbMatched1.resize(mvKeys1.size());
   for(size_t i = 0, iend = vMatches12.size(); i < iend; i++) {
     if(vMatches12[i] >= 0) {
-      mvMatches12.push_back(make_pair(i, vMatches12[i]));
+      mvMatches12.emplace_back(i, vMatches12[i]);
       mvbMatched1[i] = true;
     } else
       mvbMatched1[i] = false;
@@ -309,7 +309,7 @@ float Initializer::CheckHomography(const cv::Mat &H21, const cv::Mat &H12, vecto
 
   const float th = 5.991;
 
-  const float invSigmaSquare = 1.0 / (sigma * sigma);
+  const float invSigmaSquare = 1.0F / (sigma * sigma);
 
   for(int i = 0; i < N; i++) {
     bool bIn = true;
@@ -325,7 +325,7 @@ float Initializer::CheckHomography(const cv::Mat &H21, const cv::Mat &H12, vecto
     // Reprojection error in first image
     // x2in1 = H12*x2
 
-    const float w2in1inv = 1.0 / (h31inv * u2 + h32inv * v2 + h33inv);
+    const float w2in1inv = 1.0F / (h31inv * u2 + h32inv * v2 + h33inv);
     const float u2in1 = (h11inv * u2 + h12inv * v2 + h13inv) * w2in1inv;
     const float v2in1 = (h21inv * u2 + h22inv * v2 + h23inv) * w2in1inv;
 
@@ -341,7 +341,7 @@ float Initializer::CheckHomography(const cv::Mat &H21, const cv::Mat &H12, vecto
     // Reprojection error in second image
     // x1in2 = H21*x1
 
-    const float w1in2inv = 1.0 / (h31 * u1 + h32 * v1 + h33);
+    const float w1in2inv = 1.0F / (h31 * u1 + h32 * v1 + h33);
     const float u1in2 = (h11 * u1 + h12 * v1 + h13) * w1in2inv;
     const float v1in2 = (h21 * u1 + h22 * v1 + h23) * w1in2inv;
 
@@ -383,7 +383,7 @@ float Initializer::CheckFundamental(const cv::Mat &F21, vector<bool> &vbMatchesI
   const float th = 3.841;
   const float thScore = 5.991;
 
-  const float invSigmaSquare = 1.0 / (sigma * sigma);
+  const float invSigmaSquare = 1.0F / (sigma * sigma);
 
   for(int i = 0; i < N; i++) {
     bool bIn = true;
@@ -451,9 +451,11 @@ bool Initializer::ReconstructF(vector<bool> &vbMatchesInliers,
                                float minParallax,
                                int minTriangulated) {
   int N = 0;
-  for(size_t i = 0, iend = vbMatchesInliers.size(); i < iend; i++)
-    if(vbMatchesInliers[i])
+  for(auto &&vbMatchesInlier : vbMatchesInliers) {
+    if(vbMatchesInlier) {
       N++;
+    }
+  }
 
   // Compute Essential Matrix from Fundamental Matrix
   cv::Mat E21 = K.t() * F21 * K;
@@ -471,10 +473,10 @@ bool Initializer::ReconstructF(vector<bool> &vbMatchesInliers,
   vector<bool> vbTriangulated1, vbTriangulated2, vbTriangulated3, vbTriangulated4;
   float parallax1, parallax2, parallax3, parallax4;
 
-  int nGood1 = CheckRT(R1, t1, mvKeys1, mvKeys2, mvMatches12, vbMatchesInliers, K, vP3D1, 4.0 * mSigma2, vbTriangulated1, parallax1);
-  int nGood2 = CheckRT(R2, t1, mvKeys1, mvKeys2, mvMatches12, vbMatchesInliers, K, vP3D2, 4.0 * mSigma2, vbTriangulated2, parallax2);
-  int nGood3 = CheckRT(R1, t2, mvKeys1, mvKeys2, mvMatches12, vbMatchesInliers, K, vP3D3, 4.0 * mSigma2, vbTriangulated3, parallax3);
-  int nGood4 = CheckRT(R2, t2, mvKeys1, mvKeys2, mvMatches12, vbMatchesInliers, K, vP3D4, 4.0 * mSigma2, vbTriangulated4, parallax4);
+  int nGood1 = CheckRT(R1, t1, mvKeys1, mvKeys2, mvMatches12, vbMatchesInliers, K, vP3D1, 4.0F * mSigma2, vbTriangulated1, parallax1);
+  int nGood2 = CheckRT(R2, t1, mvKeys1, mvKeys2, mvMatches12, vbMatchesInliers, K, vP3D2, 4.0F * mSigma2, vbTriangulated2, parallax2);
+  int nGood3 = CheckRT(R1, t2, mvKeys1, mvKeys2, mvMatches12, vbMatchesInliers, K, vP3D3, 4.0F * mSigma2, vbTriangulated3, parallax3);
+  int nGood4 = CheckRT(R2, t2, mvKeys1, mvKeys2, mvMatches12, vbMatchesInliers, K, vP3D4, 4.0F * mSigma2, vbTriangulated4, parallax4);
 
   int maxGood = max(nGood1, max(nGood2, max(nGood3, nGood4)));
 
@@ -550,9 +552,11 @@ bool Initializer::ReconstructH(vector<bool> &vbMatchesInliers,
                                float minParallax,
                                int minTriangulated) {
   int N = 0;
-  for(size_t i = 0, iend = vbMatchesInliers.size(); i < iend; i++)
-    if(vbMatchesInliers[i])
-      N++;
+  for(auto && vbMatchesInlier : vbMatchesInliers) {
+    if(vbMatchesInlier) {
+      ++N;
+    }
+  }
 
   // We recover 8 motion hypotheses using the method of Faugeras et al.
   // Motion and structure from motion in a piecewise planar environment.
@@ -741,8 +745,8 @@ void Initializer::Normalize(const vector<cv::KeyPoint> &vKeys, vector<cv::Point2
   meanDevX = meanDevX / N;
   meanDevY = meanDevY / N;
 
-  float sX = 1.0 / meanDevX;
-  float sY = 1.0 / meanDevY;
+  float sX = 1.0F / meanDevX;
+  float sY = 1.0F / meanDevY;
 
   for(int i = 0; i < N; i++) {
     vNormalizedPoints[i].x = vNormalizedPoints[i].x * sX;
@@ -842,7 +846,7 @@ int Initializer::CheckRT(const cv::Mat &R,
 
     // Check reprojection error in second image
     float im2x, im2y;
-    float invZ2 = 1.0 / p3dC2.at<float>(2);
+    float invZ2 = 1.0F / p3dC2.at<float>(2);
     im2x = fx * p3dC2.at<float>(0) * invZ2 + cx;
     im2y = fy * p3dC2.at<float>(1) * invZ2 + cy;
 
