@@ -24,3 +24,6 @@ lib/
 
 .cache/
 compile_commands.json
+
+.idea/
+cmake-build-*/
