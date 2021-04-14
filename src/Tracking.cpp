@@ -41,6 +41,127 @@ using namespace std;
 
 namespace ORB_SLAM2 {
 
+auto Tracking::create(System *pSys,
+                      ORBVocabulary *pVoc,
+                      FrameDrawer *pFrameDrawer,
+                      MapDrawer *pMapDrawer,
+                      Map *pMap,
+                      KeyFrameDatabase *pKFDB,
+                      const std::string &strSettingPath,
+                      int sensor) -> std::shared_ptr<Tracking> {
+  // Load camera parameters from settings file
+  float fps             = 0;
+  float bf              = 0;
+  int   nRGB            = 0;
+  float fDepthMapFactor = 0;
+  cv::Mat K = cv::Mat::eye(3, 3, CV_32F);
+  cv::Mat DistCoef(4, 1, CV_32F);
+  ORBextractor* pExtractor = nullptr;
+
+  try {
+    cv::FileStorage fSettings(strSettingPath, cv::FileStorage::READ);
+    if(!fSettings.isOpened()) {
+      spdlog::error("Can not read \"{}\"", strSettingPath);
+      return nullptr;
+    }
+
+    const float fx = fSettings["Camera.fx"];
+    const float fy = fSettings["Camera.fy"];
+    const float cx = fSettings["Camera.cx"];
+    const float cy = fSettings["Camera.cy"];
+
+    K.at<float>(0, 0) = fx;
+    K.at<float>(1, 1) = fy;
+    K.at<float>(0, 2) = cx;
+    K.at<float>(1, 2) = cy;
+
+    const float k1 = fSettings["Camera.k1"];
+    const float k2 = fSettings["Camera.k2"];
+    const float p1 = fSettings["Camera.p1"];
+    const float p2 = fSettings["Camera.p2"];
+    const float k3 = fSettings["Camera.k3"];
+
+    DistCoef.at<float>(0) = k1;
+    DistCoef.at<float>(1) = k2;
+    DistCoef.at<float>(2) = p1;
+    DistCoef.at<float>(3) = p2;
+    if(k3 != 0) {
+      DistCoef.resize(5);
+      DistCoef.at<float>(4) = k3;
+    }
+
+    fps = fSettings["Camera.fps"];
+    if(fps == 0) {
+      fps = 30;
+    }
+
+    // Load ORB parameters
+    const int   nFeatures    = fSettings["ORBextractor.nFeatures"];
+    const float fScaleFactor = fSettings["ORBextractor.scaleFactor"];
+    const int   nLevels      = fSettings["ORBextractor.nLevels"];
+    const int   fIniThFAST   = fSettings["ORBextractor.iniThFAST"];
+    const int   fMinThFAST   = fSettings["ORBextractor.minThFAST"];
+    fDepthMapFactor = fSettings["DepthMapFactor"];
+
+    spdlog::info("ORB Extractor Parameters: ");
+    spdlog::info("- Number of Features: {}", nFeatures);
+    spdlog::info("- Scale Levels: {}", nLevels);
+    spdlog::info("- Scale Factor: {}", fScaleFactor);
+    spdlog::info("- Initial Fast Threshold: {}", fIniThFAST);
+    spdlog::info("- Minimum Fast Threshold: {}", fMinThFAST);
+
+    nRGB = fSettings["Camera.RGB"];
+    bf   = fSettings["Camera.bf"];
+
+    if(nRGB) {
+      spdlog::info("- color order: RGB (ignored if grayscale)");
+    } else {
+      spdlog::info("- color order: BGR (ignored if grayscale)");
+    }
+
+    pExtractor = new ORBextractor(nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
+  } catch(const cv::Exception &exception) {
+    spdlog::error("Tracking::create: {}", exception.what());
+    return nullptr;
+  }
+
+  auto pTracking = std::make_shared<Tracking>(pSys, pVoc, pFrameDrawer,
+                                              pMapDrawer, pMap, pKFDB, sensor);
+
+  K.copyTo(pTracking->mK);
+  DistCoef.copyTo(pTracking->mDistCoef);
+  // Max/Min Frames to insert keyframes and to check relocalisation
+  pTracking->mMinFrames         = 0;
+  pTracking->mMaxFrames         = static_cast<int>(fps);
+  pTracking->mbRGB              = nRGB;
+  pTracking->mbf                = bf;
+  pTracking->mpORBextractorLeft = pExtractor;
+
+  switch(sensor) {
+  case System::MONOCULAR:
+       pTracking->mpIniORBextractor = new ORBextractor(
+           pTracking->mpORBextractorLeft->GetFeaturesCount() * 2,
+           pTracking->mpORBextractorLeft->GetScaleFactor(),
+           pTracking->mpORBextractorLeft->GetLevels(),
+           pTracking->mpORBextractorLeft->GetIniThFast(),
+           pTracking->mpORBextractorLeft->GetMinThFast()
+       );
+    break;
+  case System::RGBD:
+    pTracking->mThDepth = bf * static_cast<float>(fDepthMapFactor) / K.at<float>(0, 0);
+    break;
+  case System::STEREO: break;
+  }
+
+  return pTracking;
+}
+
+Tracking::Tracking(System *pSys, ORBVocabulary *pVoc, FrameDrawer *pFrameDrawer,
+                   MapDrawer *pMapDrawer, Map *pMap, KeyFrameDatabase *pKFDB, int sensor)
+  : mSensor(sensor), mpORBVocabulary(pVoc), mpKeyFrameDB(pKFDB), mpSystem(pSys),
+    mpFrameDrawer(pFrameDrawer), mpMapDrawer(pMapDrawer), mpMap(pMap) {}
+
+/*
 Tracking::Tracking(System *pSys,
                    ORBVocabulary *pVoc,
                    FrameDrawer *pFrameDrawer,
@@ -48,80 +169,7 @@ Tracking::Tracking(System *pSys,
                    Map *pMap,
                    KeyFrameDatabase *pKFDB,
                    const string &strSettingPath,
-                   const int sensor) :
-    mState(NO_IMAGES_YET),
-    mSensor(sensor), mbOnlyTracking(false), mbVO(false), mpORBVocabulary(pVoc), mpKeyFrameDB(pKFDB),
-    mpInitializer(nullptr), mpSystem(pSys), mpViewer(nullptr), mpFrameDrawer(pFrameDrawer),
-    mpMapDrawer(pMapDrawer), mpMap(pMap), mnLastRelocFrameId(0) {
-  // Load camera parameters from settings file
-  cv::FileStorage fSettings(strSettingPath, cv::FileStorage::READ);
-  const float fx = fSettings["Camera.fx"];
-  const float fy = fSettings["Camera.fy"];
-  const float cx = fSettings["Camera.cx"];
-  const float cy = fSettings["Camera.cy"];
-
-  cv::Mat K = cv::Mat::eye(3, 3, CV_32F);
-  K.at<float>(0, 0) = fx;
-  K.at<float>(1, 1) = fy;
-  K.at<float>(0, 2) = cx;
-  K.at<float>(1, 2) = cy;
-  K.copyTo(mK);
-
-  cv::Mat DistCoef(4, 1, CV_32F);
-  DistCoef.at<float>(0) = fSettings["Camera.k1"];
-  DistCoef.at<float>(1) = fSettings["Camera.k2"];
-  DistCoef.at<float>(2) = fSettings["Camera.p1"];
-  DistCoef.at<float>(3) = fSettings["Camera.p2"];
-  const float k3 = fSettings["Camera.k3"];
-  if(k3 != 0) {
-    DistCoef.resize(5);
-    DistCoef.at<float>(4) = k3;
-  }
-  DistCoef.copyTo(mDistCoef);
-
-  mbf = fSettings["Camera.bf"];
-
-  float fps = fSettings["Camera.fps"];
-  if(fps == 0) {
-    fps = 30;
-  }
-
-  // Max/Min Frames to insert keyframes and to check relocalisation
-  mMinFrames = 0;
-  mMaxFrames = static_cast<int>(fps);
-
-  spdlog::debug("Camera Parameters: ");
-  spdlog::debug("- fx: {}", fx);
-  spdlog::debug("- fy: {}", fy);
-  spdlog::debug("- cx: {}", cx);
-  spdlog::debug("- cy: {}", cy);
-  spdlog::debug("- k1: {}", DistCoef.at<float>(0));
-  spdlog::debug("- k2: {}", DistCoef.at<float>(1));
-  if(DistCoef.rows == 5) {
-    spdlog::debug("- k3: {}",  DistCoef.at<float>(4));
-  }
-  spdlog::debug("- p1: {}",  DistCoef.at<float>(2));
-  spdlog::debug("- p2: {}",  DistCoef.at<float>(3));
-  spdlog::debug("- fps: {}", fps);
-
-  int nRGB = fSettings["Camera.RGB"];
-  mbRGB = nRGB;
-
-  if(mbRGB) {
-    spdlog::debug("- color order: RGB (ignored if grayscale)");
-  } else {
-    spdlog::debug("- color order: BGR (ignored if grayscale)");
-  }
-
-  // Load ORB parameters
-  int   nFeatures    = fSettings["ORBextractor.nFeatures"];
-  float fScaleFactor = fSettings["ORBextractor.scaleFactor"];
-  int   nLevels      = fSettings["ORBextractor.nLevels"];
-  int   fIniThFAST   = fSettings["ORBextractor.iniThFAST"];
-  int   fMinThFAST   = fSettings["ORBextractor.minThFAST"];
-
-  mpORBextractorLeft = new ORBextractor(nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
-
+                   const int sensor) {
   if(sensor == System::STEREO) {
     mpORBextractorRight = new ORBextractor(nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
   }
@@ -129,13 +177,6 @@ Tracking::Tracking(System *pSys,
   if(sensor == System::MONOCULAR) {
     mpIniORBextractor = new ORBextractor(2 * nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
   }
-
-  spdlog::debug("ORB Extractor Parameters: ");
-  spdlog::debug("- Number of Features: {}", nFeatures);
-  spdlog::debug("- Scale Levels: {}", nLevels);
-  spdlog::debug("- Scale Factor: {}", fScaleFactor);
-  spdlog::debug("- Initial Fast Threshold: {}", fIniThFAST);
-  spdlog::debug("- Minimum Fast Threshold: {}", fMinThFAST);
 
   if(sensor == System::STEREO || sensor == System::RGBD) {
     mThDepth = mbf * static_cast<float>(fSettings["ThDepth"]) / fx;
@@ -151,6 +192,7 @@ Tracking::Tracking(System *pSys,
     }
   }
 }
+*/
 
 void Tracking::SetLocalMapper(LocalMapping *pLocalMapper) { mpLocalMapper = pLocalMapper; }
 
@@ -484,7 +526,6 @@ void Tracking::StereoInitialization() {
 }
 
 void Tracking::MonocularInitialization() {
-
   if(!mpInitializer) {
     // Set Reference Frame
     if(mCurrentFrame.mvKeys.size() > 100) {
@@ -494,56 +535,53 @@ void Tracking::MonocularInitialization() {
       for(size_t i = 0; i < mCurrentFrame.mvKeysUn.size(); i++)
         mvbPrevMatched[i] = mCurrentFrame.mvKeysUn[i].pt;
 
-
-        delete mpInitializer;
+      delete mpInitializer;
 
       mpInitializer = new Initializer(mCurrentFrame, 1.0, 200);
 
       fill(mvIniMatches.begin(), mvIniMatches.end(), -1);
-
-      return;
     }
-  } else {
-    // Try to initialize
-    if((int)mCurrentFrame.mvKeys.size() <= 100) {
-      delete mpInitializer;
-      mpInitializer = nullptr;
-      fill(mvIniMatches.begin(), mvIniMatches.end(), -1);
-      return;
-    }
+    return;
+  }
+  // Try to initialize
+  if(static_cast<int>(mCurrentFrame.mvKeys.size()) <= 100) {
+    delete mpInitializer;
+    mpInitializer = nullptr;
+    fill(mvIniMatches.begin(), mvIniMatches.end(), -1);
+    return;
+  }
 
-    // Find correspondences
-    ORBmatcher matcher(0.9, true);
-    int nmatches = matcher.SearchForInitialization(mInitialFrame, mCurrentFrame, mvbPrevMatched, mvIniMatches, 100);
+  // Find correspondences
+  ORBmatcher matcher(0.9, true);
+  int nmatches = matcher.SearchForInitialization(mInitialFrame, mCurrentFrame, mvbPrevMatched, mvIniMatches, 100);
 
-    // Check if there are enough correspondences
-    if(nmatches < 100) {
-      delete mpInitializer;
-      mpInitializer = nullptr;
-      return;
-    }
+  // Check if there are enough correspondences
+  if(nmatches < 100) {
+    delete mpInitializer;
+    mpInitializer = nullptr;
+    return;
+  }
 
-    cv::Mat Rcw;                  // Current Camera Rotation
-    cv::Mat tcw;                  // Current Camera Translation
-    vector<bool> vbTriangulated;  // Triangulated Correspondences (mvIniMatches)
+  cv::Mat Rcw;                      // Current Camera Rotation
+  cv::Mat tcw;                      // Current Camera Translation
+  std::vector<bool> vbTriangulated; // Triangulated Correspondences (mvIniMatches)
 
-    if(mpInitializer->Initialize(mCurrentFrame, mvIniMatches, Rcw, tcw, mvIniP3D, vbTriangulated)) {
-      for(size_t i = 0, iend = mvIniMatches.size(); i < iend; i++) {
-        if(mvIniMatches[i] >= 0 && !vbTriangulated[i]) {
-          mvIniMatches[i] = -1;
-          nmatches--;
-        }
+  if(mpInitializer->Initialize(mCurrentFrame, mvIniMatches, Rcw, tcw, mvIniP3D, vbTriangulated)) {
+    for(size_t i = 0, iend = mvIniMatches.size(); i < iend; i++) {
+      if(mvIniMatches[i] >= 0 && !vbTriangulated[i]) {
+        mvIniMatches[i] = -1;
+        nmatches--;
       }
-
-      // Set Frame Poses
-      mInitialFrame.SetPose(cv::Mat::eye(4, 4, CV_32F));
-      cv::Mat Tcw = cv::Mat::eye(4, 4, CV_32F);
-      Rcw.copyTo(Tcw.rowRange(0, 3).colRange(0, 3));
-      tcw.copyTo(Tcw.rowRange(0, 3).col(3));
-      mCurrentFrame.SetPose(Tcw);
-
-      CreateInitialMapMonocular();
     }
+
+    // Set Frame Poses
+    mInitialFrame.SetPose(cv::Mat::eye(4, 4, CV_32F));
+    cv::Mat Tcw = cv::Mat::eye(4, 4, CV_32F);
+    Rcw.copyTo(Tcw.rowRange(0, 3).colRange(0, 3));
+    tcw.copyTo(Tcw.rowRange(0, 3).col(3));
+    mCurrentFrame.SetPose(Tcw);
+
+    CreateInitialMapMonocular();
   }
 }
 
@@ -612,7 +650,7 @@ void Tracking::CreateInitialMapMonocular() {
 
   // Scale points
   std::vector<MapPoint *> vpAllMapPoints = pKFini->GetMapPointMatches();
-  for(auto & vpAllMapPoint : vpAllMapPoints) {
+  for(auto &vpAllMapPoint : vpAllMapPoints) {
     if(vpAllMapPoint) {
       MapPoint *pMP = vpAllMapPoint;
       pMP->SetWorldPos(pMP->GetWorldPos() * invMedianDepth);
@@ -724,7 +762,7 @@ void Tracking::UpdateLastFrame() {
   // We insert all close points (depth<mThDepth)
   // If less than 100 close points, we insert the 100 closest ones.
   int nPoints = 0;
-  for(auto & j : vDepthIdx) {
+  for(auto &j : vDepthIdx) {
     int i = j.second;
 
     bool bCreateNew = false;
@@ -950,7 +988,7 @@ void Tracking::CreateNewKeyFrame() {
       sort(vDepthIdx.begin(), vDepthIdx.end());
 
       int nPoints = 0;
-      for(auto & j : vDepthIdx) {
+      for(auto &j : vDepthIdx) {
         int i = j.second;
 
         bool bCreateNew = false;
@@ -994,7 +1032,7 @@ void Tracking::CreateNewKeyFrame() {
 
 void Tracking::SearchLocalPoints() {
   // Do not search map points already matched
-  for(auto & mvpMapPoint : mCurrentFrame.mvpMapPoints) {
+  for(auto &mvpMapPoint : mCurrentFrame.mvpMapPoints) {
     MapPoint *pMP = mvpMapPoint;
     if(pMP) {
       if(pMP->isBad()) {

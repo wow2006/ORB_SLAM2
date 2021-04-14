@@ -36,6 +36,14 @@ class KeyFrameDatabase;
 
 class Tracking final {
 public:
+
+  static std::shared_ptr<Tracking>
+  create(System *pSys, ORBVocabulary *pVoc, FrameDrawer *pFrameDrawer,
+         MapDrawer *pMapDrawer, Map *pMap, KeyFrameDatabase *pKFDB,
+         const std::string &strSettingPath, int sensor);
+
+  Tracking(System *pSys, ORBVocabulary *pVoc, FrameDrawer *pFrameDrawer, MapDrawer *pMapDrawer, Map *pMap, KeyFrameDatabase *pKFDB, int sensor);
+  /*
   Tracking(System *pSys,
            ORBVocabulary *pVoc,
            FrameDrawer *pFrameDrawer,
@@ -44,6 +52,7 @@ public:
            KeyFrameDatabase *pKFDB,
            const string &strSettingPath,
            int sensor);
+  */
 
   // Preprocess the input and call Track(). Extract features and performs stereo matching.
   cv::Mat GrabImageStereo(const cv::Mat &imRectLeft, const cv::Mat &imRectRight, const double &timestamp);
@@ -68,11 +77,11 @@ public:
   // Tracking states
   enum eTrackingState { SYSTEM_NOT_READY = -1, NO_IMAGES_YET = 0, NOT_INITIALIZED = 1, OK = 2, LOST = 3 };
 
-  eTrackingState mState;
+  eTrackingState mState = NO_IMAGES_YET;
   eTrackingState mLastProcessedState;
 
   // Input sensor
-  int mSensor;
+  int mSensor = 0;
 
   // Current Frame
   Frame mCurrentFrame;
@@ -87,13 +96,13 @@ public:
 
   // Lists used to recover the full camera trajectory at the end of the execution.
   // Basically we store the reference keyframe for each frame and its relative transformation
-  list<cv::Mat> mlRelativeFramePoses;
-  list<KeyFrame *> mlpReferences;
-  list<double> mlFrameTimes;
-  list<bool> mlbLost;
+  std::list<cv::Mat> mlRelativeFramePoses;
+  std::list<KeyFrame *> mlpReferences;
+  std::list<double> mlFrameTimes;
+  std::list<bool> mlbLost;
 
   // True if local mapping is deactivated and we are performing only localization
-  bool mbOnlyTracking;
+  bool mbOnlyTracking = false;
 
   void Reset();
 
@@ -129,72 +138,74 @@ protected:
   // points in the map. Still tracking will continue if there are enough matches with temporal points.
   // In that case we are doing visual odometry. The system will try to do relocalization to recover
   // "zero-drift" localization to the map.
-  bool mbVO;
+  bool mbVO = false;
 
-  //Other Thread Pointers
-  LocalMapping *mpLocalMapper{};
-  LoopClosing *mpLoopClosing{};
+  // Other Thread Pointers
+  LocalMapping *mpLocalMapper = nullptr;
+  LoopClosing *mpLoopClosing = nullptr;
 
-  //ORB
-  ORBextractor *mpORBextractorLeft, *mpORBextractorRight;
-  ORBextractor *mpIniORBextractor;
+  // ORB
+  ORBextractor *mpORBextractorLeft = nullptr;
+  ORBextractor *mpORBextractorRight = nullptr;
+  ORBextractor *mpIniORBextractor = nullptr;
 
-  //BoW
-  ORBVocabulary *mpORBVocabulary;
-  KeyFrameDatabase *mpKeyFrameDB;
+  // BoW
+  ORBVocabulary *mpORBVocabulary = nullptr;
+  KeyFrameDatabase *mpKeyFrameDB = nullptr;
 
   // Initalization (only for monocular)
-  Initializer *mpInitializer;
+  Initializer *mpInitializer = nullptr;
 
   //Local Map
-  KeyFrame *mpReferenceKF{};
+  KeyFrame *mpReferenceKF = nullptr;
   std::vector<KeyFrame *> mvpLocalKeyFrames;
   std::vector<MapPoint *> mvpLocalMapPoints;
 
   // System
-  System *mpSystem;
+  System *mpSystem = nullptr;
 
-  //Drawers
-  Viewer *mpViewer;
-  FrameDrawer *mpFrameDrawer;
-  MapDrawer *mpMapDrawer;
+  // Drawers
+  Viewer      *mpViewer      = nullptr;
+  FrameDrawer *mpFrameDrawer = nullptr;
+  MapDrawer   *mpMapDrawer   = nullptr;
 
-  //Map
-  Map *mpMap;
+  // Map
+  Map *mpMap = nullptr;
 
-  //Calibration matrix
+  // Calibration matrix
   cv::Mat mK;
   cv::Mat mDistCoef;
-  float mbf;
+  float mbf = 0;
 
-  //New KeyFrame rules (according to fps)
-  int mMinFrames;
-  int mMaxFrames;
+  // New KeyFrame rules (according to fps)
+  int mMinFrames = 0;
+  int mMaxFrames = 0;
 
   // Threshold close/far points
   // Points seen as close by the stereo/RGBD sensor are considered reliable
   // and inserted from just one frame. Far points requiere a match in two keyframes.
-  float mThDepth;
+  float mThDepth = 0;
 
   // For RGB-D inputs only. For some datasets (e.g. TUM) the depthmap values are scaled.
-  float mDepthMapFactor;
+  float mDepthMapFactor = 0;
 
-  //Current matches in frame
-  int mnMatchesInliers{};
+  // Current matches in frame
+  int mnMatchesInliers = 0;
 
-  //Last Frame, KeyFrame and Relocalisation Info
+  // Last Frame, KeyFrame and Relocalisation Info
   KeyFrame *mpLastKeyFrame = nullptr;
   Frame mLastFrame;
-  unsigned int mnLastKeyFrameId{};
-  unsigned int mnLastRelocFrameId;
+  unsigned int mnLastKeyFrameId = 0;
+  unsigned int mnLastRelocFrameId = 0;
 
-  //Motion Model
+  // Motion Model
   cv::Mat mVelocity;
 
-  //Color order (true RGB, false BGR, ignored if grayscale)
-  bool mbRGB;
+  // Color order (true RGB, false BGR, ignored if grayscale)
+  bool mbRGB = false;
 
-  list<MapPoint *> mlpTemporalPoints;
+  std::list<MapPoint *> mlpTemporalPoints;
+
 };
 
 }  // namespace ORB_SLAM2

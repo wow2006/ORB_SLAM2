@@ -46,9 +46,15 @@ public:
   // Mask is ignored in the current implementation.
   void operator()(cv::InputArray image, cv::InputArray mask, std::vector<cv::KeyPoint> &keypoints, cv::OutputArray descriptors);
 
-  int inline GetLevels() { return nlevels; }
+  float GetFeaturesCount() const { return nfeatures; }
 
-  float inline GetScaleFactor() { return scaleFactor; }
+  float GetScaleFactor() const { return scaleFactor; }
+
+  int GetLevels() const { return nlevels; }
+
+  int GetIniThFast() const { return iniThFAST; }
+
+  int GetMinThFast() const { return minThFAST; }
 
   std::vector<float> inline GetScaleFactors() { return mvScaleFactor; }
 
