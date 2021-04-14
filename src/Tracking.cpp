@@ -53,6 +53,7 @@ auto Tracking::create(System *pSys,
   float fps             = 0;
   float bf              = 0;
   int   nRGB            = 0;
+  float thDepth         = 0;
   float fDepthMapFactor = 0;
   cv::Mat K = cv::Mat::eye(3, 3, CV_32F);
   cv::Mat DistCoef(4, 1, CV_32F);
@@ -101,6 +102,7 @@ auto Tracking::create(System *pSys,
     const int   nLevels      = fSettings["ORBextractor.nLevels"];
     const int   fIniThFAST   = fSettings["ORBextractor.iniThFAST"];
     const int   fMinThFAST   = fSettings["ORBextractor.minThFAST"];
+    thDepth         = fSettings["ThDepth"];
     fDepthMapFactor = fSettings["DepthMapFactor"];
 
     spdlog::info("ORB Extractor Parameters: ");
@@ -110,8 +112,8 @@ auto Tracking::create(System *pSys,
     spdlog::info("- Initial Fast Threshold: {}", fIniThFAST);
     spdlog::info("- Minimum Fast Threshold: {}", fMinThFAST);
 
-    nRGB = fSettings["Camera.RGB"];
-    bf   = fSettings["Camera.bf"];
+    nRGB    = fSettings["Camera.RGB"];
+    bf      = fSettings["Camera.bf"];
 
     if(nRGB) {
       spdlog::info("- color order: RGB (ignored if grayscale)");
@@ -148,9 +150,21 @@ auto Tracking::create(System *pSys,
        );
     break;
   case System::RGBD:
-    pTracking->mThDepth = bf * static_cast<float>(fDepthMapFactor) / K.at<float>(0, 0);
+    pTracking->mThDepth = bf * static_cast<float>(thDepth) / K.at<float>(0, 0);
+    spdlog::debug("Depth Threshold (Close/Far Points): {}", pTracking->mThDepth);
+
+    if(std::abs(static_cast<double>(fDepthMapFactor)) < 1e-5) {
+      pTracking->mDepthMapFactor = 1;
+    } else {
+      pTracking->mDepthMapFactor = 1.0F / fDepthMapFactor;
+    }
     break;
-  case System::STEREO: break;
+  case System::STEREO:
+    pTracking->mThDepth = bf * static_cast<float>(thDepth) / K.at<float>(0, 0);
+    spdlog::debug("Depth Threshold (Close/Far Points): {}", pTracking->mThDepth);
+
+    pTracking->mpORBextractorRight = new ORBextractor(*pExtractor);
+    break;
   }
 
   return pTracking;
@@ -160,39 +174,6 @@ Tracking::Tracking(System *pSys, ORBVocabulary *pVoc, FrameDrawer *pFrameDrawer,
                    MapDrawer *pMapDrawer, Map *pMap, KeyFrameDatabase *pKFDB, int sensor)
   : mSensor(sensor), mpORBVocabulary(pVoc), mpKeyFrameDB(pKFDB), mpSystem(pSys),
     mpFrameDrawer(pFrameDrawer), mpMapDrawer(pMapDrawer), mpMap(pMap) {}
-
-/*
-Tracking::Tracking(System *pSys,
-                   ORBVocabulary *pVoc,
-                   FrameDrawer *pFrameDrawer,
-                   MapDrawer *pMapDrawer,
-                   Map *pMap,
-                   KeyFrameDatabase *pKFDB,
-                   const string &strSettingPath,
-                   const int sensor) {
-  if(sensor == System::STEREO) {
-    mpORBextractorRight = new ORBextractor(nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
-  }
-
-  if(sensor == System::MONOCULAR) {
-    mpIniORBextractor = new ORBextractor(2 * nFeatures, fScaleFactor, nLevels, fIniThFAST, fMinThFAST);
-  }
-
-  if(sensor == System::STEREO || sensor == System::RGBD) {
-    mThDepth = mbf * static_cast<float>(fSettings["ThDepth"]) / fx;
-    spdlog::debug("Depth Threshold (Close/Far Points): {}", mThDepth);
-  }
-
-  if(sensor == System::RGBD) {
-    mDepthMapFactor = fSettings["DepthMapFactor"];
-    if(std::abs(static_cast<double>(mDepthMapFactor)) < 1e-5) {
-      mDepthMapFactor = 1;
-    } else {
-      mDepthMapFactor = 1.0f / mDepthMapFactor;
-    }
-  }
-}
-*/
 
 void Tracking::SetLocalMapper(LocalMapping *pLocalMapper) { mpLocalMapper = pLocalMapper; }
 

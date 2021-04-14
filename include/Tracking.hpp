@@ -36,23 +36,12 @@ class KeyFrameDatabase;
 
 class Tracking final {
 public:
-
   static std::shared_ptr<Tracking>
   create(System *pSys, ORBVocabulary *pVoc, FrameDrawer *pFrameDrawer,
          MapDrawer *pMapDrawer, Map *pMap, KeyFrameDatabase *pKFDB,
          const std::string &strSettingPath, int sensor);
 
   Tracking(System *pSys, ORBVocabulary *pVoc, FrameDrawer *pFrameDrawer, MapDrawer *pMapDrawer, Map *pMap, KeyFrameDatabase *pKFDB, int sensor);
-  /*
-  Tracking(System *pSys,
-           ORBVocabulary *pVoc,
-           FrameDrawer *pFrameDrawer,
-           MapDrawer *pMapDrawer,
-           Map *pMap,
-           KeyFrameDatabase *pKFDB,
-           const string &strSettingPath,
-           int sensor);
-  */
 
   // Preprocess the input and call Track(). Extract features and performs stereo matching.
   cv::Mat GrabImageStereo(const cv::Mat &imRectLeft, const cv::Mat &imRectRight, const double &timestamp);
