@@ -26,7 +26,7 @@ extern void usleep(uint32_t useconds);
 namespace ORB_SLAM2 {
 
 class Map;
-class Viewer;
+// class Viewer;
 class MapPoint;
 class Tracking;
 class MapDrawer;
@@ -140,10 +140,10 @@ private:
   LoopClosing *mpLoopCloser;
 
   // The viewer draws the map and the current camera pose. It uses Pangolin.
-  Viewer *mpViewer;
+  // Viewer *mpViewer;
 
-  FrameDrawer *mpFrameDrawer;
-  MapDrawer *mpMapDrawer;
+  // FrameDrawer *mpFrameDrawer;
+  // MapDrawer *mpMapDrawer;
 
   // System threads: Local Mapping, Loop Closing, Viewer.
   // The Tracking thread "lives" in the main execution thread that creates the System object.

@@ -35,7 +35,7 @@ void usleep(uint32_t useconds) { std::this_thread::sleep_for(std::chrono::micros
 namespace ORB_SLAM2 {
 
 System::System(const string &strVocFile, const string &strSettingsFile, const eSensor sensor, const bool bUseViewer) :
-    mSensor(sensor), mpViewer(nullptr), mbReset(false), mbActivateLocalizationMode(false),
+    mSensor(sensor), /*mpViewer(nullptr),*/ mbReset(false), mbActivateLocalizationMode(false),
     mbDeactivateLocalizationMode(false) {
   // Output welcome message
   spdlog::debug("ORB-SLAM2 Copyright (C) 2014-2016 Raul Mur-Artal, University of Zaragoza.");
@@ -88,12 +88,12 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
   mpMap = new Map();
 
   //Create Drawers. These are used by the Viewer
-  mpFrameDrawer = new FrameDrawer(mpMap);
-  mpMapDrawer = new MapDrawer(mpMap, strSettingsFile);
+  // mpFrameDrawer = new FrameDrawer(mpMap);
+  // mpMapDrawer = new MapDrawer(mpMap, strSettingsFile);
 
   //Initialize the Tracking thread
   //(it will live in the main thread of execution, the one that called this constructor)
-  mpTracker = Tracking::create(this, mpVocabulary, mpFrameDrawer, mpMapDrawer, mpMap, mpKeyFrameDatabase, strSettingsFile, mSensor);
+  mpTracker = Tracking::create(this, mpVocabulary, /*mpFrameDrawer*/nullptr, /*mpMapDrawer*/nullptr, mpMap, mpKeyFrameDatabase, strSettingsFile, mSensor);
 
   //Initialize the Local Mapping thread and launch
   mpLocalMapper = new LocalMapping(mpMap, mSensor == MONOCULAR);
@@ -104,11 +104,13 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
   mptLoopClosing = new thread(&ORB_SLAM2::LoopClosing::Run, mpLoopCloser);
 
   //Initialize the Viewer thread and launch
+  /*
   if(bUseViewer) {
     mpViewer = new Viewer(this, mpFrameDrawer, mpMapDrawer, mpTracker.get(), strSettingsFile);
     mptViewer = new thread(&Viewer::Run, mpViewer);
     mpTracker->SetViewer(mpViewer);
   }
+  */
 
   //Set pointers between threads
   mpTracker->SetLocalMapper(mpLocalMapper);
@@ -290,21 +292,26 @@ void System::Reset() {
 void System::Shutdown() {
   mpLocalMapper->RequestFinish();
   mpLoopCloser->RequestFinish();
+
+  /*
   if(mpViewer) {
     mpViewer->RequestFinish();
     while(!mpViewer->isFinished()) {
       usleep(5000);
     }
   }
+  */
 
   // Wait until all thread have effectively stopped
   while(!mpLocalMapper->isFinished() || !mpLoopCloser->isFinished() || mpLoopCloser->isRunningGBA()) {
     usleep(5000);
   }
 
+  /*
   if(mpViewer) {
     pangolin::BindToContext("ORB-SLAM2: Map Viewer");
   }
+  */
 }
 
 [[maybe_unused]] void System::SaveTrajectoryTUM(const string &filename) {

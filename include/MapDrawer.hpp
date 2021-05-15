@@ -28,27 +28,27 @@ class MapDrawer final {
 public:
   MapDrawer(Map *pMap, const std::string &strSettingPath);
 
-  Map *mpMap;
+  Map *mpMap = nullptr;
 
   void DrawMapPoints() const;
 
   void DrawKeyFrames(bool bDrawKF, bool bDrawGraph) const;
 
-  void DrawCurrentCamera(pangolin::OpenGlMatrix &Twc) const;
+  // void DrawCurrentCamera(pangolin::OpenGlMatrix &Twc) const;
 
   void SetCurrentCameraPose(const cv::Mat &Tcw);
 
   /*void SetReferenceKeyFrame(KeyFrame *pKF);*/
 
-  void GetCurrentOpenGLCameraMatrix(pangolin::OpenGlMatrix &M);
+  // void GetCurrentOpenGLCameraMatrix(pangolin::OpenGlMatrix &M);
 
 private:
-  float mKeyFrameSize;
-  float mKeyFrameLineWidth;
-  float mGraphLineWidth;
-  float mPointSize;
-  float mCameraSize;
-  float mCameraLineWidth;
+  float mKeyFrameSize = 0;
+  float mKeyFrameLineWidth = 0;
+  float mGraphLineWidth = 0;
+  float mPointSize = 0;
+  float mCameraSize = 0;
+  float mCameraLineWidth = 0;
 
   cv::Mat mCameraPose;
 

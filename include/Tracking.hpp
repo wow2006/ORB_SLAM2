@@ -25,7 +25,7 @@
 namespace ORB_SLAM2 {
 
 class Map;
-class Viewer;
+// class Viewer;
 class System;
 class MapDrawer;
 class Initializer;
@@ -41,7 +41,7 @@ public:
          MapDrawer *pMapDrawer, Map *pMap, KeyFrameDatabase *pKFDB,
          const std::string &strSettingPath, int sensor);
 
-  Tracking(System *pSys, ORBVocabulary *pVoc, FrameDrawer *pFrameDrawer, MapDrawer *pMapDrawer, Map *pMap, KeyFrameDatabase *pKFDB, int sensor);
+  // cv::Mat GrabImage(const std::vector<cv::Mat>& images, const double &timestamp);
 
   // Preprocess the input and call Track(). Extract features and performs stereo matching.
   cv::Mat GrabImageStereo(const cv::Mat &imRectLeft, const cv::Mat &imRectRight, const double &timestamp);
@@ -51,8 +51,10 @@ public:
   cv::Mat GrabImageMonocular(const cv::Mat &im, const double &timestamp);
 
   void SetLocalMapper(LocalMapping *pLocalMapper);
+
   void SetLoopClosing(LoopClosing *pLoopClosing);
-  void SetViewer(Viewer *pViewer);
+
+  // void SetViewer(Viewer *pViewer);
 
   // Load new settings
   // The focal lenght should be similar or scale prediction will fail when projecting points
@@ -60,7 +62,7 @@ public:
   [[maybe_unused]] void ChangeCalibration(const string &strSettingPath);
 
   // Use this function if you have deactivated local mapping and you only want to localize the camera.
-  void InformOnlyTracking(const bool &flag);
+  void InformOnlyTracking(bool flag) { mbOnlyTracking = flag; }
 
 public:
   // Tracking states
@@ -96,31 +98,45 @@ public:
   void Reset();
 
 protected:
+  //
+  Tracking(System *pSys, ORBVocabulary *pVoc, FrameDrawer *pFrameDrawer, MapDrawer *pMapDrawer, Map *pMap, KeyFrameDatabase *pKFDB, int sensor);
+
   // Main tracking function. It is independent of the input sensor.
   void Track();
+
+  // Create MapPoints and asscoiate to keyframes
+  void createMapPoints(KeyFrame *pKFini, KeyFrame *pKFcur);
 
   // Map initialization for stereo and RGB-D
   void StereoInitialization();
 
   // Map initialization for monocular
   void MonocularInitialization();
+
   void CreateInitialMapMonocular();
 
   void CheckReplacedInLastFrame();
+
   bool TrackReferenceKeyFrame();
+
   void UpdateLastFrame();
+
   bool TrackWithMotionModel();
 
   bool Relocalization();
 
   void UpdateLocalMap();
+
   void UpdateLocalPoints();
+
   void UpdateLocalKeyFrames();
 
   bool TrackLocalMap();
+
   void SearchLocalPoints();
 
   bool NeedNewKeyFrame();
+
   void CreateNewKeyFrame();
 
   // In case of performing only localization, this flag is true when there are no matches to
@@ -154,7 +170,7 @@ protected:
   System *mpSystem = nullptr;
 
   // Drawers
-  Viewer      *mpViewer      = nullptr;
+  // Viewer      *mpViewer      = nullptr;
   FrameDrawer *mpFrameDrawer = nullptr;
   MapDrawer   *mpMapDrawer   = nullptr;
 

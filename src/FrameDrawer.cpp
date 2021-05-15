@@ -147,17 +147,18 @@ void FrameDrawer::Update(Tracking *pTracker) {
   mbOnlyTracking = pTracker->mbOnlyTracking;
 
   if(pTracker->mLastProcessedState == Tracking::NOT_INITIALIZED) {
-    mvIniKeys = pTracker->mInitialFrame.mvKeys;
+    mvIniKeys    = pTracker->mInitialFrame.mvKeys;
     mvIniMatches = pTracker->mvIniMatches;
   } else if(pTracker->mLastProcessedState == Tracking::OK) {
     for(int i = 0; i < N; i++) {
       MapPoint *pMP = pTracker->mCurrentFrame.mvpMapPoints[i];
       if(pMP) {
         if(!pTracker->mCurrentFrame.mvbOutlier[i]) {
-          if(pMP->Observations() > 0)
+          if(pMP->Observations() > 0) {
             mvbMap[i] = true;
-          else
+          } else {
             mvbVO[i] = true;
+          }
         }
       }
     }

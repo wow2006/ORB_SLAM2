@@ -29,7 +29,7 @@ class Initializer final {
 
 public:
   // Fix the reference frame
-  explicit Initializer(const Frame &ReferenceFrame, float sigma = 1.0, int iterations = 200);
+  explicit Initializer(const Frame &ReferenceFrame, float sigma = 1.0F, int iterations = 200);
 
   // Computes in parallel a fundamental matrix and a homography
   // Selects a model and tries to recover the motion and the structure from motion
@@ -112,6 +112,7 @@ private:
 
   // Ransac sets
   std::vector<std::vector<size_t> > mvSets;
+
 };
 
 }  // namespace ORB_SLAM2

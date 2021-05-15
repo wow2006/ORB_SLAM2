@@ -55,7 +55,7 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/features2d.hpp>
 // pangolin
-#include <pangolin/pangolin.h>
+// #include <pangolin/pangolin.h>
 // spdlog
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/basic_file_sink.h>

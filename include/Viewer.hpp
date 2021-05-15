@@ -47,16 +47,20 @@ public:
 private:
   bool Stop();
 
-  System      *mpSystem;
-  FrameDrawer *mpFrameDrawer;
-  MapDrawer   *mpMapDrawer;
-  [[maybe_unused]] Tracking    *mpTracker;
+  System      *mpSystem      = nullptr;
+  FrameDrawer *mpFrameDrawer = nullptr;
+  MapDrawer   *mpMapDrawer   = nullptr;
+  [[maybe_unused]] Tracking    *mpTracker = nullptr;
 
   // 1/fps in ms
-  double mT;
-  float mImageWidth, mImageHeight;
+  double mT = 0;
+  float mImageWidth = 0;
+  float mImageHeight = 0;
 
-  float mViewpointX, mViewpointY, mViewpointZ, mViewpointF;
+  float mViewpointX;
+  float mViewpointY;
+  float mViewpointZ;
+  float mViewpointF;
 
   bool CheckFinish();
 

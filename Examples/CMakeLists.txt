@@ -11,3 +11,7 @@ if(ENABLE_MONO)
   add_subdirectory(Monocular)
 endif()
 
+if(ENABLE_GUI)
+  add_subdirectory(GUI)
+endif()
+
