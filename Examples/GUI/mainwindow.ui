@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1127</width>
+    <width>1065</width>
     <height>714</height>
    </rect>
   </property>
@@ -140,7 +140,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1127</width>
+     <width>1065</width>
      <height>25</height>
     </rect>
    </property>
@@ -155,7 +155,15 @@
      <addaction name="actionKITTI"/>
      <addaction name="actionEuRoC"/>
     </widget>
+    <widget class="QMenu" name="menuRecent_Datasets">
+     <property name="title">
+      <string>Recent Datasets</string>
+     </property>
+     <addaction name="separator"/>
+     <addaction name="actionClear"/>
+    </widget>
     <addaction name="menuLoad_Dataset"/>
+    <addaction name="menuRecent_Datasets"/>
    </widget>
    <addaction name="menu_File"/>
   </widget>
@@ -186,6 +194,11 @@
    </property>
    <property name="text">
     <string>EuRoC</string>
+   </property>
+  </action>
+  <action name="actionClear">
+   <property name="text">
+    <string>Clear</string>
    </property>
   </action>
  </widget>

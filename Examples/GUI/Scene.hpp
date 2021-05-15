@@ -13,7 +13,6 @@ Q_OBJECT
 public:
   Scene(const QGLViewer *const v);
 
-public Q_SLOTS:
   void draw();
 
 private:

@@ -12,6 +12,9 @@ add_executable(
   mainwindow.hpp
   mainwindow.cpp
   mainwindow.ui
+  dialogEuRoC.hpp
+  dialogEuRoC.cpp
+  dialogEuRoC.ui
 )
 
 target_include_directories(

@@ -9,7 +9,7 @@
 Scene::Scene(const QGLViewer *const pViewer)
   : m_pViewer{pViewer} {
   // Connect the viewer signal to our draw slot.
-  connect(pViewer, SIGNAL(drawNeeded()), this, SLOT(draw()));
+  connect(pViewer, &QGLViewer::drawNeeded, this, &Scene::draw);
 }
 
 void Scene::draw() {
