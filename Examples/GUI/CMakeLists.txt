@@ -1,5 +1,6 @@
 # ${CMAKE_SOURCE_DIR}/Examples/GUI/CMakeLists.txt
 
+find_package(range-v3 REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(Qt5 REQUIRED Widgets Xml OpenGL)
 find_package(QGLViewer REQUIRED)
@@ -26,7 +27,7 @@ target_include_directories(
 target_link_libraries(
   ORB_SLAM3_GUI
   PRIVATE
-  #ORB_SLAM2
+  ORB_SLAM2
   OpenGL::GLU
   OpenGL::GL
   Qt::Xml
@@ -34,6 +35,7 @@ target_link_libraries(
   Qt::OpenGL
   Qt::Widgets
   ${QGLVIEWER_LIBRARY}
+  range-v3
 )
 
 set_target_properties(

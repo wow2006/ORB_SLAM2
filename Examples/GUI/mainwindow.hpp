@@ -15,6 +15,10 @@ namespace Ui {
   class MainWindow;
 } // namespace Ui
 
+namespace ORB_SLAM2 {
+  class System;
+} // namespace ORB_SLAM2
+
 class MainWindow final : public QMainWindow {
   Q_OBJECT
 
@@ -35,6 +39,7 @@ private:
   std::unique_ptr<DatasetEuRoC> m_pDataset;
   std::thread mWorkerThread;
   std::unique_ptr<Ui::MainWindow> m_pUI;
+  std::unique_ptr<ORB_SLAM2::System> m_pSystem;
 
   // Retrieve paths to images
   std::vector<std::string> vstrImageLeft;

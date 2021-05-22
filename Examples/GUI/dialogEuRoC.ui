@@ -20,7 +20,7 @@
       <widget class="QLineEdit" name="yamlLineEdit"/>
      </item>
      <item row="3" column="2">
-      <widget class="QToolButton" name="toolButton_4">
+      <widget class="QToolButton" name="vocabPathButton">
        <property name="text">
         <string>...</string>
        </property>
@@ -47,21 +47,21 @@
       <widget class="QLineEdit" name="camera1LineEdit"/>
      </item>
      <item row="0" column="2">
-      <widget class="QToolButton" name="toolButton">
+      <widget class="QToolButton" name="camera0PathButton">
        <property name="text">
         <string>...</string>
        </property>
       </widget>
      </item>
      <item row="1" column="2">
-      <widget class="QToolButton" name="toolButton_2">
+      <widget class="QToolButton" name="camera1PathButton">
        <property name="text">
         <string>...</string>
        </property>
       </widget>
      </item>
      <item row="2" column="2">
-      <widget class="QToolButton" name="toolButton_3">
+      <widget class="QToolButton" name="settingPathButton">
        <property name="text">
         <string>...</string>
        </property>
@@ -95,7 +95,7 @@
       <widget class="QLineEdit" name="timeStampLineEdit"/>
      </item>
      <item row="4" column="2">
-      <widget class="QToolButton" name="toolButton_5">
+      <widget class="QToolButton" name="timeStampPathButton">
        <property name="text">
         <string>...</string>
        </property>

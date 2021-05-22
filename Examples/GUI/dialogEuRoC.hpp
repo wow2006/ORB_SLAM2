@@ -7,7 +7,7 @@ namespace Ui {
   class Dialog;
 } // namespace Ui
 
-struct DatasetEuRoC {
+struct DatasetEuRoC final {
   QString vocabl;
   QString yaml;
   QString cam0;
@@ -20,9 +20,13 @@ Q_OBJECT
 public:
   explicit DialogEuRoC(DatasetEuRoC &dataset) noexcept;
 
-  ~DialogEuRoC() noexcept;
+  ~DialogEuRoC() noexcept override;
+
+  void loadSettings();
 
   void accept() override;
+
+  void saveSettings() const;
 
 private:
   DatasetEuRoC &mDataset;
