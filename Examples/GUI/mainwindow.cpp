@@ -77,9 +77,14 @@ MainWindow::MainWindow(QWidget *parent) noexcept :
   // m_pUI->actionEuRoC
   connect(m_pUI->startPushButton, &QPushButton::clicked,
           this, &MainWindow::startProcess);
+  connect(this, &MainWindow::processImage, [this](int value) {
+      m_pUI->progressBar->setValue(value);
+  });
 }
 
-MainWindow::~MainWindow() noexcept = default;
+MainWindow::~MainWindow() noexcept {
+  mWorkerThread.join();
+}
 
 void MainWindow::readyToProcess() noexcept {
   m_pUI->startPushButton->setEnabled(true);
@@ -93,17 +98,21 @@ void MainWindow::startProcess() noexcept {
       ORB_SLAM2::System::STEREO,
       true
   );
+
+  m_pUI->progressBar->setMaximum(vstrImageLeft.size());
   mWorkerThread = std::thread([this]() {
       process();
   });
+
   m_pUI->startPushButton->setEnabled(false);
 }
 
 void MainWindow::process() noexcept {
   uint32_t index = 0;
   const auto imagesCount = vstrImageLeft.size();
+
   for(const auto [leftImageName, rightImageName] : ranges::zip_view(vstrImageLeft, vstrImageRight)) {
-    fmt::print("\rProcessing [{}, {}]", index++, imagesCount);
+    fmt::print("\rProcessing [{}, {}]", index, imagesCount);
     auto leftImage  = cv::imread(leftImageName,  cv::IMREAD_COLOR);
     if(leftImage.empty()) {
       fmt::print(stderr, fg(fmt::color::red), "ERROR: Can not load \"{}\"\n", leftImageName);
@@ -116,6 +125,7 @@ void MainWindow::process() noexcept {
       continue;
     }
 
+    emit processImage(index++);
     m_pSystem->TrackStereo(leftImage, rightImage, static_cast<double>(index));
   }
   //m_pSystem->TrackStereo();

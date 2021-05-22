@@ -27,6 +27,9 @@ public:
 
   ~MainWindow() noexcept override;
 
+signals:
+  void processImage(int value);
+
 protected:
   void readyToProcess() noexcept;
 

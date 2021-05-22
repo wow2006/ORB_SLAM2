@@ -20,7 +20,7 @@ add_executable(
 
 target_include_directories(
   ORB_SLAM3_GUI
-  PRIVATE
+  SYSTEM PRIVATE
   ${QGLVIEWER_INCLUDE_DIR}
 )
 
