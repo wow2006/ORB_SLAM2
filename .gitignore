@@ -21,6 +21,7 @@ Vocabulary/ORBvoc.txt
 build/
 *~
 lib/
+bin/
 
 .cache/
 compile_commands.json
