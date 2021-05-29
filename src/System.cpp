@@ -28,15 +28,30 @@
 #include "FrameDrawer.hpp"
 #include "LoopClosing.hpp"
 #include "LocalMapping.hpp"
+#include "ShowImageEvent.hpp"
 #include "KeyFrameDatabase.hpp"
+
 
 void usleep(uint32_t useconds) { std::this_thread::sleep_for(std::chrono::microseconds(useconds)); }
 
+std::shared_ptr<Dispatcher> g_pDispatcher;
+
 namespace ORB_SLAM2 {
 
-System::System(const string &strVocFile, const string &strSettingsFile, const eSensor sensor, const bool bUseViewer) :
-    mSensor(sensor), mpViewer(nullptr), mbReset(false), mbActivateLocalizationMode(false),
+System::System(const string &strVocFile, const string &strSettingsFile,
+              const eSensor sensor, const bool bUseViewer)
+  : mSensor(sensor), mbReset(false), mbActivateLocalizationMode(false),
     mbDeactivateLocalizationMode(false) {
+  if(!g_pDispatcher) {
+    g_pDispatcher = std::make_shared<Dispatcher>();
+    ShowImageEvent showImageEvent({});
+    const auto key = showImageEvent.type();
+    g_pDispatcher->subscribe(key, [](const IEvent& event) {
+      const auto showImageEvent = static_cast<const ShowImageEvent*>(&event);
+      const auto image = showImageEvent->get();
+      cv::imshow("ORB-SLAM2: Current Frame", image);
+    });
+  }
   // Output welcome message
   spdlog::debug("ORB-SLAM2 Copyright (C) 2014-2016 Raul Mur-Artal, University of Zaragoza.");
   spdlog::debug("This program comes with ABSOLUTELY NO WARRANTY;");
@@ -105,9 +120,9 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
 
   //Initialize the Viewer thread and launch
   if(bUseViewer) {
-    mpViewer = new Viewer(this, mpFrameDrawer, mpMapDrawer, mpTracker, strSettingsFile);
-    mptViewer = new thread(&Viewer::Run, mpViewer);
-    mpTracker->SetViewer(mpViewer);
+    m_pViewer = Viewer::createUsingSettings(mpMapDrawer, strSettingsFile);
+    mptViewer = new thread(&Viewer::Run, m_pViewer.get());
+    //mpTracker->SetViewer(m_pViewer.get());
   }
 
   //Set pointers between threads
@@ -158,10 +173,10 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
     }
   }
 
-  cv::Mat Tcw = mpTracker->GrabImageStereo(imLeft, imRight, timestamp);
+  const cv::Mat Tcw = mpTracker->GrabImageStereo(imLeft, imRight, timestamp);
 
-  unique_lock<mutex> lock2(mMutexState);
-  mTrackingState      = mpTracker->mState;
+  std::unique_lock<std::mutex> lock2(mMutexState);
+  mTrackingState      = static_cast<int>(mpTracker->mState); // TODO(Hussein): Remove convertion
   mTrackedMapPoints   = mpTracker->mCurrentFrame.mvpMapPoints;
   mTrackedKeyPointsUn = mpTracker->mCurrentFrame.mvKeysUn;
 
@@ -208,7 +223,7 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
   cv::Mat Tcw = mpTracker->GrabImageRGBD(im, depthmap, timestamp);
 
   std::unique_lock<std::mutex> lock2(mMutexState);
-  mTrackingState = mpTracker->mState;
+  mTrackingState = static_cast<int>(mpTracker->mState); // TODO(Hussein): Remove casting
   mTrackedMapPoints = mpTracker->mCurrentFrame.mvpMapPoints;
   mTrackedKeyPointsUn = mpTracker->mCurrentFrame.mvKeysUn;
 
@@ -255,7 +270,7 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
   cv::Mat Tcw = mpTracker->GrabImageMonocular(im, timestamp);
 
   std::unique_lock<std::mutex> lock2(mMutexState);
-  mTrackingState = mpTracker->mState;
+  mTrackingState = static_cast<int>(mpTracker->mState); // TODO(Hussein): Remove casting
   mTrackedMapPoints = mpTracker->mCurrentFrame.mvpMapPoints;
   mTrackedKeyPointsUn = mpTracker->mCurrentFrame.mvKeysUn;
 
@@ -290,9 +305,9 @@ void System::Reset() {
 void System::Shutdown() {
   mpLocalMapper->RequestFinish();
   mpLoopCloser->RequestFinish();
-  if(mpViewer) {
-    mpViewer->RequestFinish();
-    while(!mpViewer->isFinished()) {
+  if(m_pViewer) {
+    m_pViewer->RequestFinish();
+    while(!m_pViewer->isFinished()) {
       usleep(5000);
     }
   }
@@ -302,7 +317,7 @@ void System::Shutdown() {
     usleep(5000);
   }
 
-  if(mpViewer) {
+  if(m_pViewer) {
     pangolin::BindToContext("ORB-SLAM2: Map Viewer");
   }
 }

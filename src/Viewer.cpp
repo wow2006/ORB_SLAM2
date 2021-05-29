@@ -29,29 +29,7 @@
 
 namespace ORB_SLAM2 {
 
-Viewer::Viewer(System *pSystem, FrameDrawer *pFrameDrawer, MapDrawer *pMapDrawer, Tracking *pTracking, const string &strSettingPath) :
-    mpSystem(pSystem), mpFrameDrawer(pFrameDrawer), mpMapDrawer(pMapDrawer), mpTracker(pTracking), mbFinishRequested(false),
-    mbFinished(true), mbStopped(true), mbStopRequested(false) {
-  cv::FileStorage fSettings(strSettingPath, cv::FileStorage::READ);
-
-  float fps = fSettings["Camera.fps"];
-  if(fps < 1) {
-    fps = 30;
-  }
-  mT = 1e3 / fps;
-
-  mImageWidth  = fSettings["Camera.width"];
-  mImageHeight = fSettings["Camera.height"];
-  if(mImageWidth < 1 || mImageHeight < 1) {
-    mImageWidth  = 640;
-    mImageHeight = 480;
-  }
-
-  mViewpointX = fSettings["Viewer.ViewpointX"];
-  mViewpointY = fSettings["Viewer.ViewpointY"];
-  mViewpointZ = fSettings["Viewer.ViewpointZ"];
-  mViewpointF = fSettings["Viewer.ViewpointF"];
-}
+Viewer::Viewer(MapDrawer *pMapDrawer) : mpMapDrawer(pMapDrawer) {}
 
 void Viewer::Run() {
   mbFinished = false;
@@ -104,6 +82,7 @@ void Viewer::Run() {
       bFollow = false;
     }
 
+    /*
     if(menuLocalizationMode && !bLocalizationMode) {
       mpSystem->ActivateLocalizationMode();
       bLocalizationMode = true;
@@ -111,6 +90,7 @@ void Viewer::Run() {
       mpSystem->DeactivateLocalizationMode();
       bLocalizationMode = false;
     }
+    */
 
     d_cam.Activate(s_cam);
     glClearColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -124,8 +104,8 @@ void Viewer::Run() {
 
     pangolin::FinishFrame();
 
-    cv::Mat im = mpFrameDrawer->DrawFrame();
-    cv::imshow("ORB-SLAM2: Current Frame", im);
+    // cv::Mat im = mpFrameDrawer->DrawFrame();
+    // cv::imshow("ORB-SLAM2: Current Frame", im);
     cv::waitKey(mT);
 
     if(menuReset) {
@@ -133,13 +113,15 @@ void Viewer::Run() {
       menuShowKeyFrames    = true;
       menuShowPoints       = true;
       menuLocalizationMode = false;
+      /*
       if(bLocalizationMode) {
         mpSystem->DeactivateLocalizationMode();
       }
+      */
       bLocalizationMode = false;
       bFollow           = true;
       menuFollowCamera  = true;
-      mpSystem->Reset();
+      // mpSystem->Reset();
       menuReset = false;
     }
 
@@ -199,6 +181,35 @@ bool Viewer::Stop() {
 
 void Viewer::Release() {
   mbStopped = false;
+}
+std::shared_ptr<Viewer>
+Viewer::createUsingSettings(MapDrawer *pMapDrawer, std::string_view settingsPath) {
+  cv::FileStorage fSettings(settingsPath.data(), cv::FileStorage::READ);
+  if(!fSettings.isOpened()) {
+    spdlog::error("ERROR: Can not");
+    return nullptr;
+  }
+
+  auto pViewer = std::make_shared<Viewer>(pMapDrawer);
+  float fps = fSettings["Camera.fps"];
+  if(fps < 1) {
+    fps = 30;
+  }
+  pViewer->mT = 1e3 / fps;
+
+  pViewer->mImageWidth  = fSettings["Camera.width"];
+  pViewer->mImageHeight = fSettings["Camera.height"];
+  if(pViewer->mImageWidth < 1 || pViewer->mImageHeight < 1) {
+    pViewer->mImageWidth  = 640;
+    pViewer->mImageHeight = 480;
+  }
+
+  pViewer->mViewpointX = fSettings["Viewer.ViewpointX"];
+  pViewer->mViewpointY = fSettings["Viewer.ViewpointY"];
+  pViewer->mViewpointZ = fSettings["Viewer.ViewpointZ"];
+  pViewer->mViewpointF = fSettings["Viewer.ViewpointF"];
+
+  return pViewer;
 }
 
 }  // namespace ORB_SLAM2

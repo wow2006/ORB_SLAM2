@@ -81,10 +81,10 @@ public:
   void UpdatePoseMatrices();
 
   // Returns the camera center.
-  inline cv::Mat GetCameraCenter() { return mOw.clone(); }
+  cv::Mat GetCameraCenter() const { return mOw.clone(); }
 
   // Returns inverse of rotation
-  inline cv::Mat GetRotationInverse() { return mRwc.clone(); }
+  cv::Mat GetRotationInverse() const { return mRwc.clone(); }
 
   // Check if a MapPoint is in the frustum of the camera
   // and fill variables of the MapPoint to be used by the tracking
@@ -93,7 +93,7 @@ public:
   // Compute the cell of a keypoint (return false if outside the grid)
   bool PosInGrid(const cv::KeyPoint &kp, int &posX, int &posY);
 
-  vector<size_t> GetFeaturesInArea(const float &x, const float &y, const float &r, const int minLevel = -1, const int maxLevel = -1) const;
+  std::vector<size_t> GetFeaturesInArea(const float &x, const float &y, const float &r, const int minLevel = -1, const int maxLevel = -1) const;
 
   // Search a match for each keypoint in the left image to a keypoint in the right image.
   // If there is a match, depth is computed and the right coordinate associated to the left keypoint is stored.

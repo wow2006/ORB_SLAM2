@@ -25,7 +25,6 @@
 namespace ORB_SLAM2 {
 
 class Map;
-class Viewer;
 class System;
 class MapDrawer;
 class Initializer;
@@ -54,7 +53,6 @@ public:
 
   void SetLocalMapper(LocalMapping *pLocalMapper);
   void SetLoopClosing(LoopClosing *pLoopClosing);
-  void SetViewer(Viewer *pViewer);
 
   // Load new settings
   // The focal lenght should be similar or scale prediction will fail when projecting points
@@ -66,7 +64,7 @@ public:
 
 public:
   // Tracking states
-  enum eTrackingState { SYSTEM_NOT_READY = -1, NO_IMAGES_YET = 0, NOT_INITIALIZED = 1, OK = 2, LOST = 3 };
+  enum eTrackingState : char { SYSTEM_NOT_READY = -1, NO_IMAGES_YET = 0, NOT_INITIALIZED = 1, OK = 2, LOST = 3 };
 
   eTrackingState mState;
   eTrackingState mLastProcessedState;
@@ -155,7 +153,6 @@ protected:
   System *mpSystem;
 
   //Drawers
-  Viewer *mpViewer;
   FrameDrawer *mpFrameDrawer;
   MapDrawer *mpMapDrawer;
 

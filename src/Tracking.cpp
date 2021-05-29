@@ -21,7 +21,6 @@
 #include "Tracking.hpp"
 //
 #include "Map.hpp"
-#include "Viewer.hpp"
 #include "System.hpp"
 #include "KeyFrame.hpp"
 #include "MapPoint.hpp"
@@ -36,6 +35,8 @@
 #include "ORBextractor.hpp"
 #include "LocalMapping.hpp"
 #include "KeyFrameDatabase.hpp"
+// TESTING
+#include "ShowImageEvent.hpp"
 
 using namespace std;
 
@@ -49,9 +50,9 @@ Tracking::Tracking(System *pSys,
                    KeyFrameDatabase *pKFDB,
                    const string &strSettingPath,
                    const int sensor) :
-    mState(NO_IMAGES_YET),
+    mState(eTrackingState::NO_IMAGES_YET),
     mSensor(sensor), mbOnlyTracking(false), mbVO(false), mpORBVocabulary(pVoc), mpKeyFrameDB(pKFDB),
-    mpInitializer(nullptr), mpSystem(pSys), mpViewer(nullptr), mpFrameDrawer(pFrameDrawer),
+    mpInitializer(nullptr), mpSystem(pSys), mpFrameDrawer(pFrameDrawer),
     mpMapDrawer(pMapDrawer), mpMap(pMap), mnLastRelocFrameId(0) {
   // Load camera parameters from settings file
   cv::FileStorage fSettings(strSettingPath, cv::FileStorage::READ);
@@ -156,32 +157,30 @@ void Tracking::SetLocalMapper(LocalMapping *pLocalMapper) { mpLocalMapper = pLoc
 
 void Tracking::SetLoopClosing(LoopClosing *pLoopClosing) { mpLoopClosing = pLoopClosing; }
 
-void Tracking::SetViewer(Viewer *pViewer) { mpViewer = pViewer; }
-
-cv::Mat Tracking::GrabImageStereo(const cv::Mat &imRectLeft, const cv::Mat &imRectRight, const double &timestamp) {
-  mImGray = imRectLeft;
-  cv::Mat imGrayRight = imRectRight;
-
-  if(mImGray.channels() == 3) {
-    if(mbRGB) {
-      cvtColor(mImGray, mImGray, CV_RGB2GRAY);
-      cvtColor(imGrayRight, imGrayRight, CV_RGB2GRAY);
+inline void convertColorToGray(cv::Mat& image, bool bRGB) {
+  if(image.channels() == 3) {
+    if(bRGB) {
+      cvtColor(image, image, CV_RGB2GRAY);
     } else {
-      cvtColor(mImGray, mImGray, CV_BGR2GRAY);
-      cvtColor(imGrayRight, imGrayRight, CV_BGR2GRAY);
+      cvtColor(image, image, CV_BGR2GRAY);
     }
-  } else if(mImGray.channels() == 4) {
-    if(mbRGB) {
-      cvtColor(mImGray, mImGray, CV_RGBA2GRAY);
-      cvtColor(imGrayRight, imGrayRight, CV_RGBA2GRAY);
+  } else if(image.channels() == 4) {
+    if(bRGB) {
+      cvtColor(image, image, CV_RGBA2GRAY);
     } else {
-      cvtColor(mImGray, mImGray, CV_BGRA2GRAY);
-      cvtColor(imGrayRight, imGrayRight, CV_BGRA2GRAY);
+      cvtColor(image, image, CV_BGRA2GRAY);
     }
   }
+}
 
-  mCurrentFrame =
-    Frame(mImGray, imGrayRight, timestamp, mpORBextractorLeft, mpORBextractorRight, mpORBVocabulary, mK, mDistCoef, mbf, mThDepth);
+cv::Mat Tracking::GrabImageStereo(const cv::Mat &imRectLeft, const cv::Mat &imRectRight, const double &timestamp) {
+  mImGray             = imRectLeft;
+  cv::Mat imGrayRight = imRectRight;
+
+  convertColorToGray(mImGray, mbRGB);
+  convertColorToGray(imGrayRight, mbRGB);
+
+  mCurrentFrame = Frame(mImGray, imGrayRight, timestamp, mpORBextractorLeft, mpORBextractorRight, mpORBVocabulary, mK, mDistCoef, mbf, mThDepth);
 
   Track();
 
@@ -229,7 +228,7 @@ cv::Mat Tracking::GrabImageMonocular(const cv::Mat &im, const double &timestamp)
       cvtColor(mImGray, mImGray, CV_BGRA2GRAY);
   }
 
-  if(mState == NOT_INITIALIZED || mState == NO_IMAGES_YET)
+  if(mState == eTrackingState::NOT_INITIALIZED || mState == eTrackingState::NO_IMAGES_YET)
     mCurrentFrame = Frame(mImGray, timestamp, mpIniORBextractor, mpORBVocabulary, mK, mDistCoef, mbf, mThDepth);
   else
     mCurrentFrame = Frame(mImGray, timestamp, mpORBextractorLeft, mpORBVocabulary, mK, mDistCoef, mbf, mThDepth);
@@ -240,8 +239,8 @@ cv::Mat Tracking::GrabImageMonocular(const cv::Mat &im, const double &timestamp)
 }
 
 void Tracking::Track() {
-  if(mState == NO_IMAGES_YET) {
-    mState = NOT_INITIALIZED;
+  if(mState == eTrackingState::NO_IMAGES_YET) {
+    mState = eTrackingState::NOT_INITIALIZED;
   }
 
   mLastProcessedState = mState;
@@ -249,7 +248,7 @@ void Tracking::Track() {
   // Get Map Mutex -> Map cannot be changed
   unique_lock<mutex> lock(mpMap->mMutexMapUpdate);
 
-  if(mState == NOT_INITIALIZED) {
+  if(mState == eTrackingState::NOT_INITIALIZED) {
     if(mSensor == System::STEREO || mSensor == System::RGBD)
       StereoInitialization();
     else
@@ -257,8 +256,9 @@ void Tracking::Track() {
 
     mpFrameDrawer->Update(this);
 
-    if(mState != OK)
+    if(mState != eTrackingState::OK) {
       return;
+    }
   } else {
     // System is initialized. Track Frame.
     bool bOK;
@@ -268,7 +268,7 @@ void Tracking::Track() {
       // Local Mapping is activated. This is the normal behaviour, unless
       // you explicitly activate the "only tracking" mode.
 
-      if(mState == OK) {
+      if(mState == eTrackingState::OK) {
         // Local Mapping might have changed some MapPoints tracked in last frame
         CheckReplacedInLastFrame();
 
@@ -285,7 +285,7 @@ void Tracking::Track() {
     } else {
       // Localization Mode: Local Mapping is deactivated
 
-      if(mState == LOST) {
+      if(mState == eTrackingState::LOST) {
         bOK = Relocalization();
       } else {
         if(!mbVO) {
@@ -352,9 +352,9 @@ void Tracking::Track() {
     }
 
     if(bOK)
-      mState = OK;
+      mState = eTrackingState::OK;
     else
-      mState = LOST;
+      mState = eTrackingState::LOST;
 
     // Update drawer
     mpFrameDrawer->Update(this);
@@ -389,8 +389,9 @@ void Tracking::Track() {
       mlpTemporalPoints.clear();
 
       // Check if we need to insert a new keyframe
-      if(NeedNewKeyFrame())
+      if(NeedNewKeyFrame()) {
         CreateNewKeyFrame();
+      }
 
       // We allow points with high innovation (considererd outliers by the Huber Function)
       // pass to the new keyframe, so that bundle adjustment will finally decide
@@ -403,7 +404,7 @@ void Tracking::Track() {
     }
 
     // Reset if the camera get lost soon after initialization
-    if(mState == LOST) {
+    if(mState == eTrackingState::LOST) {
       if(mpMap->KeyFramesInMap() <= 5) {
         spdlog::debug("Track lost soon after initialisation, reseting...");
         mpSystem->Reset();
@@ -423,13 +424,13 @@ void Tracking::Track() {
     mlRelativeFramePoses.push_back(Tcr);
     mlpReferences.push_back(mpReferenceKF);
     mlFrameTimes.push_back(mCurrentFrame.mTimeStamp);
-    mlbLost.push_back(mState == LOST);
+    mlbLost.push_back(mState == eTrackingState::LOST);
   } else {
     // This can happen if tracking is lost
     mlRelativeFramePoses.push_back(mlRelativeFramePoses.back());
     mlpReferences.push_back(mlpReferences.back());
     mlFrameTimes.push_back(mlFrameTimes.back());
-    mlbLost.push_back(mState == LOST);
+    mlbLost.push_back(mState == eTrackingState::LOST);
   }
 }
 
@@ -479,7 +480,7 @@ void Tracking::StereoInitialization() {
 
     mpMapDrawer->SetCurrentCameraPose(mCurrentFrame.mTcw);
 
-    mState = OK;
+    mState = eTrackingState::OK;
   }
 }
 
@@ -640,7 +641,7 @@ void Tracking::CreateInitialMapMonocular() {
 
   mpMap->mvpKeyFrameOrigins.push_back(pKFini);
 
-  mState = OK;
+  mState = eTrackingState::OK;
 }
 
 void Tracking::CheckReplacedInLastFrame() {
@@ -928,8 +929,13 @@ void Tracking::CreateNewKeyFrame() {
 
   auto *pKF = new KeyFrame(mCurrentFrame, mpMap, mpKeyFrameDB);
 
-  mpReferenceKF = pKF;
+  mpReferenceKF               = pKF;
   mCurrentFrame.mpReferenceKF = pKF;
+
+
+  // TESTING
+  //ShowImageEvent event(pKF->mat);
+  //g_pDispatcher->post(
 
   if(mSensor != System::MONOCULAR) {
     mCurrentFrame.UpdatePoseMatrices();
@@ -1292,12 +1298,14 @@ bool Tracking::Relocalization() {
 
 void Tracking::Reset() {
   spdlog::debug("System Reseting");
+  /*
   if(mpViewer) {
     mpViewer->RequestStop();
     while(!mpViewer->isStopped()) {
       usleep(3000);
     }
   }
+  */
 
   // Reset Local Mapping
   spdlog::debug("Reseting Local Mapper...");
@@ -1319,7 +1327,7 @@ void Tracking::Reset() {
 
   KeyFrame::nNextId = 0;
   Frame::nNextId = 0;
-  mState = NO_IMAGES_YET;
+  mState = eTrackingState::NO_IMAGES_YET;
 
   if(mpInitializer) {
     delete mpInitializer;
@@ -1331,9 +1339,11 @@ void Tracking::Reset() {
   mlFrameTimes.clear();
   mlbLost.clear();
 
+  /*
   if(mpViewer) {
     mpViewer->Release();
   }
+  */
 }
 
 [[maybe_unused]] void Tracking::ChangeCalibration(const string &strSettingPath) {

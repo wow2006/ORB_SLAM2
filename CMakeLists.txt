@@ -54,6 +54,9 @@ target_sources(
   src/LocalMapping.cpp
   src/ORBextractor.cpp
   src/KeyFrameDatabase.cpp
+  # NEW
+  src/Dispatcher.cpp
+  src/ShowImageEvent.cpp
 )
 
 target_include_directories(

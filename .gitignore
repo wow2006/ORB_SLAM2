@@ -22,5 +22,6 @@ build/*
 *~
 lib/*
 bin/*
-.cache/
+.cache/*
 compile_commands.json
+logs/*

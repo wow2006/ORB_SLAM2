@@ -28,7 +28,9 @@ class FrameDrawer;
 
 class Viewer final {
 public:
-  Viewer(System *pSystem, FrameDrawer *pFrameDrawer, MapDrawer *pMapDrawer, Tracking *pTracking, const std::string &strSettingPath);
+  Viewer(MapDrawer *pMapDrawer);
+
+  static std::shared_ptr<Viewer> createUsingSettings(MapDrawer *pMapDrawer, std::string_view settingsPath);
 
   // Main thread function. Draw points, keyframes, the current camera pose and the last processed
   // frame. Drawing is refreshed according to the camera fps. We use Pangolin.
@@ -47,10 +49,10 @@ public:
 private:
   bool Stop();
 
-  System      *mpSystem;
-  FrameDrawer *mpFrameDrawer;
+  // System      *mpSystem;
+  // FrameDrawer *mpFrameDrawer;
   MapDrawer   *mpMapDrawer;
-  [[maybe_unused]] Tracking    *mpTracker;
+  // [[maybe_unused]] Tracking    *mpTracker;
 
   // 1/fps in ms
   double mT;
@@ -62,11 +64,11 @@ private:
 
   void SetFinish();
 
-  std::atomic_bool mbFinishRequested;
-  std::atomic_bool mbFinished;
+  std::atomic_bool mbFinishRequested = false;
+  std::atomic_bool mbFinished = true;
 
-  std::atomic_bool mbStopped;
-  std::atomic_bool mbStopRequested;
+  std::atomic_bool mbStopped = true;
+  std::atomic_bool mbStopRequested = false;
 
 };
 

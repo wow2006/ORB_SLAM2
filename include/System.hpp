@@ -19,9 +19,14 @@
  */
 #pragma once
 // Interal
+#include "Dispatcher.hpp"
 #include "ORBVocabulary.hpp"
 
+
 extern void usleep(uint32_t useconds);
+
+// TODO(Hussein): Remove me
+extern std::shared_ptr<Dispatcher> g_pDispatcher;
 
 namespace ORB_SLAM2 {
 
@@ -140,7 +145,7 @@ private:
   LoopClosing *mpLoopCloser;
 
   // The viewer draws the map and the current camera pose. It uses Pangolin.
-  Viewer *mpViewer;
+  std::shared_ptr<Viewer> m_pViewer;
 
   FrameDrawer *mpFrameDrawer;
   MapDrawer *mpMapDrawer;
