@@ -1,179 +1,37 @@
-/**
-* This file is part of ORB-SLAM2.
-*
-* Copyright (C) 2014-2016 Raúl Mur-Artal <raulmur at unizar dot es> (University of Zaragoza)
-* For more information see <https://github.com/raulmur/ORB_SLAM2>
-*
-* ORB-SLAM2 is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* ORB-SLAM2 is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
-*/
 // Internal
 #include "Viewer.hpp"
-//
-#include "System.hpp"
-#include "Tracking.hpp"
-#include "MapDrawer.hpp"
-#include "FrameDrawer.hpp"
-// pangolin
-#include <pangolin/pangolin.h>
+#include "WorkerThread.hpp"
+
 
 namespace ORB_SLAM2 {
 
-Viewer::Viewer(MapDrawer *pMapDrawer) : mpMapDrawer(pMapDrawer) {}
+Viewer::Viewer() noexcept : mWorkerThread(std::make_unique<utilities::WorkerThread>([this]() { this->run(); })) {}
 
 Viewer::~Viewer() noexcept = default;
 
-void Viewer::Run() {
+// Main thread function. Draw points, keyframes, the current camera pose and the last processed
+// frame. Drawing is refreshed according to the camera fps. We use Pangolin.
+void Viewer::run() noexcept {
   mbFinished = false;
   mbStopped  = false;
 
-  pangolin::CreateWindowAndBind("ORB-SLAM2: Map Viewer", 1024, 768);
-
-  // 3D Mouse handler requires depth testing to be enabled
-  glEnable(GL_DEPTH_TEST);
-
-  // Issue specific OpenGl we might need
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-  pangolin::CreatePanel("menu").SetBounds(0.0, 1.0, 0.0, pangolin::Attach::Pix(175));
-  pangolin::Var<bool> menuFollowCamera("menu.Follow Camera", true, true);
-  pangolin::Var<bool> menuShowPoints("menu.Show Points", true, true);
-  pangolin::Var<bool> menuShowKeyFrames("menu.Show KeyFrames", true, true);
-  pangolin::Var<bool> menuShowGraph("menu.Show Graph", true, true);
-  pangolin::Var<bool> menuLocalizationMode("menu.Localization Mode", false, true);
-  pangolin::Var<bool> menuReset("menu.Reset", false, false);
-
-  // Define Camera Render Object (for view / scene browsing)
-  pangolin::OpenGlRenderState s_cam(pangolin::ProjectionMatrix(1024, 768, mViewpointF, mViewpointF, 512, 389, 0.1, 1000),
-                                    pangolin::ModelViewLookAt(mViewpointX, mViewpointY, mViewpointZ, 0, 0, 0, 0.0, -1.0, 0.0));
-
-  // Add named OpenGL viewport to window and provide 3D Handler
-  pangolin::View &d_cam = pangolin::CreateDisplay().SetBounds(0.0, 1.0, pangolin::Attach::Pix(175), 1.0, -1024.0F / 768.0F).SetHandler(new pangolin::Handler3D(s_cam));
-
-  pangolin::OpenGlMatrix Twc;
-  Twc.SetIdentity();
-
-  cv::namedWindow("ORB-SLAM2: Current Frame");
-
-  bool bFollow = true;
-  bool bLocalizationMode = false;
-
-  while(true) {
+  initialize();
+  while(mbFinishRequested) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    mpMapDrawer->GetCurrentOpenGLCameraMatrix(Twc);
-
-    if(menuFollowCamera && bFollow) {
-      s_cam.Follow(Twc);
-    } else if(menuFollowCamera && !bFollow) {
-      s_cam.SetModelViewMatrix(pangolin::ModelViewLookAt(mViewpointX, mViewpointY, mViewpointZ, 0, 0, 0, 0.0, -1.0, 0.0));
-      s_cam.Follow(Twc);
-      bFollow = true;
-    } else if(!menuFollowCamera && bFollow) {
-      bFollow = false;
-    }
-
-    /*
-    if(menuLocalizationMode && !bLocalizationMode) {
-      mpSystem->ActivateLocalizationMode();
-      bLocalizationMode = true;
-    } else if(!menuLocalizationMode && bLocalizationMode) {
-      mpSystem->DeactivateLocalizationMode();
-      bLocalizationMode = false;
-    }
-    */
-
-    d_cam.Activate(s_cam);
-    glClearColor(1.0F, 1.0F, 1.0F, 1.0F);
-    mpMapDrawer->DrawCurrentCamera(Twc);
-    if(menuShowKeyFrames || menuShowGraph) {
-      mpMapDrawer->DrawKeyFrames(menuShowKeyFrames, menuShowGraph);
-    }
-    if(menuShowPoints) {
-      mpMapDrawer->DrawMapPoints();
-    }
-
-    pangolin::FinishFrame();
-
-    // cv::Mat im = mpFrameDrawer->DrawFrame();
-    // cv::imshow("ORB-SLAM2: Current Frame", im);
-    cv::waitKey(mT);
-
-    if(menuReset) {
-      menuShowGraph        = true;
-      menuShowKeyFrames    = true;
-      menuShowPoints       = true;
-      menuLocalizationMode = false;
-      /*
-      if(bLocalizationMode) {
-        mpSystem->DeactivateLocalizationMode();
-      }
-      */
-      bLocalizationMode = false;
-      bFollow           = true;
-      menuFollowCamera  = true;
-      // mpSystem->Reset();
-      menuReset = false;
-    }
-
-    if(Stop()) {
-      while(isStopped()) {
-        usleep(3000);
-      }
-    }
-
-    if(CheckFinish()) {
-      break;
-    }
+    preDraw();
+    draw();
+    afterDraw();
   }
-
-  SetFinish();
+  cleanup();
 }
 
-void Viewer::RequestFinish() {
-  mbFinishRequested = true;
-}
-
-bool Viewer::CheckFinish() {
-  return mbFinishRequested;
-}
-
-void Viewer::SetFinish() {
-  mbFinished = true;
-}
-
-bool Viewer::isFinished() {
-  return mbFinished;
-}
-
-void Viewer::RequestStop() {
-  if(!mbStopped) {
-    mbStopRequested = true;
-  }
-}
-
-bool Viewer::isStopped() {
-  return mbStopped;
-}
-
-bool Viewer::Stop() {
+bool Viewer::stop() noexcept {
   if(mbFinishRequested) {
     return false;
   }
 
   if(mbStopRequested) {
-    mbStopped = true;
+    mbStopped       = true;
     mbStopRequested = false;
     return true;
   }
@@ -181,37 +39,23 @@ bool Viewer::Stop() {
   return false;
 }
 
-void Viewer::Release() {
-  mbStopped = false;
-}
-std::shared_ptr<Viewer>
-Viewer::createUsingSettings(MapDrawer *pMapDrawer, std::string_view settingsPath) {
-  cv::FileStorage fSettings(settingsPath.data(), cv::FileStorage::READ);
-  if(!fSettings.isOpened()) {
-    spdlog::error("ERROR: Can not");
-    return nullptr;
+void Viewer::requestStop() noexcept {
+  if(!mbStopped) {
+    mbStopRequested = true;
   }
-
-  auto pViewer = std::make_shared<Viewer>(pMapDrawer);
-  float fps = fSettings["Camera.fps"];
-  if(fps < 1) {
-    fps = 30;
-  }
-  pViewer->mT = 1e3 / fps;
-
-  pViewer->mImageWidth  = fSettings["Camera.width"];
-  pViewer->mImageHeight = fSettings["Camera.height"];
-  if(pViewer->mImageWidth < 1 || pViewer->mImageHeight < 1) {
-    pViewer->mImageWidth  = 640;
-    pViewer->mImageHeight = 480;
-  }
-
-  pViewer->mViewpointX = fSettings["Viewer.ViewpointX"];
-  pViewer->mViewpointY = fSettings["Viewer.ViewpointY"];
-  pViewer->mViewpointZ = fSettings["Viewer.ViewpointZ"];
-  pViewer->mViewpointF = fSettings["Viewer.ViewpointF"];
-
-  return pViewer;
 }
 
-}  // namespace ORB_SLAM2
+bool Viewer::isStopped() const noexcept {
+  return mbStopped;
+}
+
+void Viewer::requestFinish() noexcept {
+  mbFinishRequested = true;
+}
+
+bool Viewer::checkFinish() const noexcept {
+  return mbFinishRequested;
+}
+
+} // namespace ORB_SLAM2
+

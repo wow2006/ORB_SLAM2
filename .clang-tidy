@@ -1,14 +1,24 @@
 ---
-Checks:          'portability-*,performance-*,readability-*,cppcoreguidelines-*,modernize-*,clang-analyzer-*'
-WarningsAsErrors: '*'
-HeaderFilterRegex: '.*'
+Checks: >
+  portability-*,
+  performance-*,
+  readability-*,
+  cppcoreguidelines-*,
+  modernize-*,
+  clang-analyzer-*,
+  -modernize-use-trailing-return-type
+
+HeaderFilterRegex: 'include/.*'
+
 AnalyzeTemporaryDtors: false
+
 FormatStyle:     none
+
 CheckOptions:
   - { key: readability-identifier-naming.NamespaceCase,       value: camelBack  }
   - { key: readability-identifier-naming.ClassCase,           value: CamelCase  }
   - { key: readability-identifier-naming.PrivateMemberPrefix, value: m          }
-  - { key: readability-identifier-naming.PrivateMemberCase,   value: CamelCase  }
+  - { key: readability-identifier-naming.PrivateMemberCase,   value: szHungarianNotation  }
   - { key: readability-identifier-naming.StructCase,          value: CamelCase  }
   - { key: readability-identifier-naming.FunctionCase,        value: camelBack  }
   - { key: readability-identifier-naming.VariableCase,        value: camelBack  }

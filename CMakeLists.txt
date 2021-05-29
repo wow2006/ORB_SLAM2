@@ -20,6 +20,7 @@ find_package(Eigen3   REQUIRED)
 find_package(Pangolin REQUIRED)
 find_package(spdlog   REQUIRED)
 find_package(range-v3 REQUIRED)
+find_package(Fruit    REQUIRED)
 # Thirdparty
 find_package(g2o   REQUIRED)
 find_package(DBoW2 REQUIRED)
@@ -38,7 +39,6 @@ target_sources(
   src/Map.cpp
   src/Frame.cpp
   src/System.cpp
-  src/Viewer.cpp
   src/KeyFrame.cpp
   src/MapPoint.cpp
   src/Tracking.cpp
@@ -55,14 +55,21 @@ target_sources(
   src/ORBextractor.cpp
   src/KeyFrameDatabase.cpp
   # NEW
+  src/Viewer.cpp
   src/Dispatcher.cpp
+  src/SaveTrajectoryTUM.cpp
+  src/SaveTrajectoryKITTI.cpp
+  src/WorkerThread.cpp
+  src/PangolinViewer.cpp
   src/ShowImageEvent.cpp
+  src/CloseViewerEvent.cpp
 )
 
 target_include_directories(
   ${PROJECT_NAME}
   SYSTEM PUBLIC
   ${Pangolin_INCLUDE_DIRS}
+  ${FRUIT_INCLUDE_DIR}
 )
 
 target_include_directories(
@@ -83,6 +90,8 @@ target_link_libraries(
   ORB_SLAM2::g2o
   ORB_SLAM2::DBoW2
   options::options
+  #
+  ${FRUIT_LIBRARY}
 )
 
 target_compile_definitions(

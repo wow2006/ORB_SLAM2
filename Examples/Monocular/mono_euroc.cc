@@ -110,7 +110,7 @@ int main(int argc, char **argv) {
 
     const auto t1 = std::chrono::steady_clock::now();
     // Pass the image to the SLAM system
-    SLAM.TrackMonocular(im, tframe);
+    SLAM.trackMonocular(im, tframe);
 
     const auto t2 = std::chrono::steady_clock::now();
 
@@ -145,7 +145,7 @@ int main(int argc, char **argv) {
   spdlog::debug("mean tracking time: ", totaltime / nImages);
 
   // Save camera trajectory
-  SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory.txt");
+  SLAM.save("KeyFrameTrajectory.txt", ORB_SLAM2::System::SaveFormat::TUM);
 
   return EXIT_SUCCESS;
 }

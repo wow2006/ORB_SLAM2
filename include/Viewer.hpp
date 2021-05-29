@@ -1,71 +1,49 @@
-/**
-* This file is part of ORB-SLAM2.
-*
-* Copyright (C) 2014-2016 Raúl Mur-Artal <raulmur at unizar dot es> (University of Zaragoza)
-* For more information see <https://github.com/raulmur/ORB_SLAM2>
-*
-* ORB-SLAM2 is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* ORB-SLAM2 is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
-*/
 #pragma once
-#include "IViewer.hpp"
+
+namespace utilities {
+class WorkerThread;
+} // namespace utilities
 
 namespace ORB_SLAM2 {
 
-class System;
-class Tracking;
-class MapDrawer;
-class FrameDrawer;
+struct Viewer {
+  Viewer() noexcept;
 
-class Viewer final : public IViewer {
-public:
-  Viewer(MapDrawer *pMapDrawer);
+  Viewer(const Viewer&) noexcept = delete;
 
-  ~Viewer() noexcept override;
+  Viewer& operator=(const Viewer&) noexcept = delete;
 
-  static std::shared_ptr<Viewer> createUsingSettings(MapDrawer *pMapDrawer, std::string_view settingsPath);
+  Viewer(Viewer&&) noexcept = delete;
 
-  // Main thread function. Draw points, keyframes, the current camera pose and the last processed
-  // frame. Drawing is refreshed according to the camera fps. We use Pangolin.
-  void Run();
+  Viewer& operator=(Viewer&&) noexcept = delete;
 
-  void RequestFinish();
+  virtual ~Viewer() noexcept;
 
-  void RequestStop();
+  void requestStop() noexcept;
 
-  bool isFinished();
+  [[nodiscard]] bool isStopped() const noexcept;
 
-  bool isStopped();
+  void requestFinish() noexcept;
 
-  void Release();
+  [[nodiscard]] bool isFinished() const noexcept;
+
+  void run() noexcept;
+
+  bool stop() noexcept;
+
+protected:
+  [[nodiscard]] bool checkFinish() const noexcept;
 
 private:
-  bool Stop();
+  virtual void initialize() noexcept = 0;
 
-  // System      *mpSystem;
-  // FrameDrawer *mpFrameDrawer;
-  MapDrawer   *mpMapDrawer;
-  // [[maybe_unused]] Tracking    *mpTracker;
+  virtual void preDraw() noexcept = 0;
 
-  // 1/fps in ms
-  double mT;
-  float mImageWidth, mImageHeight;
+  virtual void draw() noexcept = 0;
 
-  float mViewpointX, mViewpointY, mViewpointZ, mViewpointF;
+  virtual void afterDraw() noexcept = 0;
 
-  bool CheckFinish();
-
-  void SetFinish();
+  virtual void cleanup() noexcept = 0;
 
   std::atomic_bool mbFinishRequested = false;
   std::atomic_bool mbFinished = true;
@@ -73,6 +51,9 @@ private:
   std::atomic_bool mbStopped = true;
   std::atomic_bool mbStopRequested = false;
 
+  std::unique_ptr<utilities::WorkerThread> mWorkerThread;
+
 };
 
-}  // namespace ORB_SLAM2
+} // namespace ORB_SLAM2
+

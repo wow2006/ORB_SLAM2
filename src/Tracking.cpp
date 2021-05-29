@@ -28,6 +28,7 @@
 #include "MapDrawer.hpp"
 #include "Optimizer.hpp"
 #include "PnPsolver.hpp"
+#include "Dispatcher.hpp"
 #include "ORBmatcher.hpp"
 #include "FrameDrawer.hpp"
 #include "Initializer.hpp"
@@ -37,6 +38,7 @@
 #include "KeyFrameDatabase.hpp"
 // TESTING
 #include "ShowImageEvent.hpp"
+#include "CloseViewerEvent.hpp"
 
 using namespace std;
 
@@ -1298,14 +1300,7 @@ bool Tracking::Relocalization() {
 
 void Tracking::Reset() {
   spdlog::debug("System Reseting");
-  /*
-  if(mpViewer) {
-    mpViewer->RequestStop();
-    while(!mpViewer->isStopped()) {
-      usleep(3000);
-    }
-  }
-  */
+  g_pDispatcher->post(CloseViewerEvent{});
 
   // Reset Local Mapping
   spdlog::debug("Reseting Local Mapper...");
@@ -1329,7 +1324,7 @@ void Tracking::Reset() {
   Frame::nNextId = 0;
   mState = eTrackingState::NO_IMAGES_YET;
 
-  if(mpInitializer) {
+  if(mpInitializer != nullptr) {
     delete mpInitializer;
     mpInitializer = nullptr;
   }

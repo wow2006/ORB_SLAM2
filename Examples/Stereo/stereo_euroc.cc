@@ -145,7 +145,7 @@ int main(int argc, char **argv) {
 #endif
 
     // Pass the images to the SLAM system
-    SLAM.TrackStereo(imLeftRect, imRightRect, tframe);
+    SLAM.trackStereo(imLeftRect, imRightRect, tframe);
 
 #ifdef COMPILEDWITHC11
     std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
@@ -183,7 +183,7 @@ int main(int argc, char **argv) {
   spdlog::debug("mean tracking time: ", totaltime / nImages);
 
   // Save camera trajectory
-  SLAM.SaveTrajectoryTUM("CameraTrajectory.txt");
+  SLAM.save("CameraTrajectory.txt", ORB_SLAM2::System::SaveFormat::TUM);
 
   return 0;
 }
