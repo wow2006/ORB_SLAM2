@@ -18,6 +18,7 @@
 * along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
 */
 #pragma once
+#include "IViewer.hpp"
 
 namespace ORB_SLAM2 {
 
@@ -26,9 +27,11 @@ class Tracking;
 class MapDrawer;
 class FrameDrawer;
 
-class Viewer final {
+class Viewer final : public IViewer {
 public:
   Viewer(MapDrawer *pMapDrawer);
+
+  ~Viewer() noexcept override;
 
   static std::shared_ptr<Viewer> createUsingSettings(MapDrawer *pMapDrawer, std::string_view settingsPath);
 

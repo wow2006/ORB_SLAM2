@@ -34,7 +34,18 @@
 
 void usleep(uint32_t useconds) { std::this_thread::sleep_for(std::chrono::microseconds(useconds)); }
 
-std::shared_ptr<Dispatcher> g_pDispatcher;
+std::shared_ptr<Dispatcher> g_pDispatcher; // NOLINT
+
+inline void createImageShowEvent(std::shared_ptr<ORB_SLAM2::IViewer> pViewer) {
+  ShowImageEvent showImageEvent({});
+  const auto key = showImageEvent.type();
+
+  g_pDispatcher->subscribe(key, [pViewer](const IEvent& event) {
+    const auto showImageEventCasted = static_cast<const ShowImageEvent*>(&event);
+    const auto image = showImageEventCasted->get();
+    cv::imshow("ORB-SLAM2: Current Frame", image);
+  });
+}
 
 namespace ORB_SLAM2 {
 
@@ -44,13 +55,6 @@ System::System(const string &strVocFile, const string &strSettingsFile,
     mbDeactivateLocalizationMode(false) {
   if(!g_pDispatcher) {
     g_pDispatcher = std::make_shared<Dispatcher>();
-    ShowImageEvent showImageEvent({});
-    const auto key = showImageEvent.type();
-    g_pDispatcher->subscribe(key, [](const IEvent& event) {
-      const auto showImageEvent = static_cast<const ShowImageEvent*>(&event);
-      const auto image = showImageEvent->get();
-      cv::imshow("ORB-SLAM2: Current Frame", image);
-    });
   }
   // Output welcome message
   spdlog::debug("ORB-SLAM2 Copyright (C) 2014-2016 Raul Mur-Artal, University of Zaragoza.");
@@ -122,7 +126,7 @@ System::System(const string &strVocFile, const string &strSettingsFile,
   if(bUseViewer) {
     m_pViewer = Viewer::createUsingSettings(mpMapDrawer, strSettingsFile);
     mptViewer = new thread(&Viewer::Run, m_pViewer.get());
-    //mpTracker->SetViewer(m_pViewer.get());
+    //createImageShowEvent(m_pViewer);
   }
 
   //Set pointers between threads

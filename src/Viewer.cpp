@@ -31,6 +31,8 @@ namespace ORB_SLAM2 {
 
 Viewer::Viewer(MapDrawer *pMapDrawer) : mpMapDrawer(pMapDrawer) {}
 
+Viewer::~Viewer() noexcept = default;
+
 void Viewer::Run() {
   mbFinished = false;
   mbStopped  = false;
